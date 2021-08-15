@@ -318,7 +318,6 @@ def github_project(username: str, repository: str):
 			"project.html",
 			project_name=f"{username}/{repository}",
 			data_url=f"/htmx/github/{username}/{repository}",
-			root_url="http://localhost:8001"
 			)
 
 

@@ -28,8 +28,21 @@ Don't import from here; import directly from ``dependency_dash`` itself.
 #  OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+# stdlib
+import os
+
 # 3rd party
 from domdf_python_tools.paths import PathPlus
 from flask import Flask  # type: ignore
 
+__all__ = ["inject_constants"]
+
 app = Flask("dependency_dash", template_folder=(PathPlus(__file__).parent / "templates").as_posix())
+
+
+@app.context_processor
+def inject_constants():
+	return {
+			"show_sidebar": False,
+			"root_url": os.getenv("DD_ROOT_URL", "http://localhost:5000"),
+			}

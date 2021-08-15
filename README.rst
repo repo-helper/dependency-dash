@@ -93,6 +93,10 @@ The doesn't need access to any additional scopes.
 Then set the ``GITHUB_TOKEN`` environment variable to the token.
 ``dependency-dash`` also supports ``.env`` files is you wish to place the token in there instead.
 
+You'll also need to set the ``DD_ROOT_URL`` to the root URL of the web server,
+including the scheme.
+This defaults to ``http://localhost:5000``.
+
 Then run the app using a `WSGI server`_ such as Gunicorn:
 
 .. code-block:: bash
