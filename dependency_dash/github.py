@@ -272,7 +272,7 @@ def parse_setup_py(content: bytes) -> Tuple[Set[ComparableRequirement], List[str
 	return requirements, invalid_lines
 
 
-def get_repo_requirements(repository: ShortRepository) -> Tuple[Set[ComparableRequirement], List[str]]:
+def get_repo_requirements(repository: ShortRepository) -> Tuple[str, Set[ComparableRequirement], List[str]]:
 	"""
 	Returns the requirements specified for the given repository.
 
@@ -285,7 +285,8 @@ def get_repo_requirements(repository: ShortRepository) -> Tuple[Set[ComparableRe
 
 	:param repository:
 
-	:returns: A set of requirements listed in the file, and a list of syntactically invalid lines.
+	:returns: The filename containing the requirements,
+		a set of requirements listed in the file, and a list of syntactically invalid lines.
 	"""
 
 	for function, filename in [
@@ -296,11 +297,13 @@ def get_repo_requirements(repository: ShortRepository) -> Tuple[Set[ComparableRe
 		]:
 
 		try:
-			return get_requirements_from_github(
-					repository.full_name, repository.default_branch, file=filename, parse_func=function
-					)
+			requirements, invalid_lines = get_requirements_from_github(
+				repository.full_name, repository.default_branch, file=filename, parse_func=function
+				)
 		except (requests.HTTPError, SkipFile):
 			continue
+		else:
+			return filename, requirements, invalid_lines
 
 	raise NotImplementedError
 
@@ -336,13 +339,14 @@ def htmx_github_project(username: str, repository: str):
 		return "<h6>Repository not found.</h6>"
 
 	try:
-		requirements, invalid = get_repo_requirements(repo)
+		filename, requirements, invalid = get_repo_requirements(repo)
 	except NotImplementedError:
 		return render_template("no_supported_files.html")
 	else:
 		# TODO: list invalid requirements
 		return render_template(
 				"dependency_table.html",
+				filename=filename,
 				dependencies=list(get_dependency_status(requirements)),
 				format_project_links=format_project_links,
 				make_badge=make_badge,
