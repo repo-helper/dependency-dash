@@ -1,0 +1,27 @@
+<h5>No supported files found</h5>
+
+<p>Supported files are
+	<code>requirements.txt</code>,
+	<code>pyproject.toml</code>,
+	<code>setup.cfg</code>
+	and <code>setup.py</code>
+</p>
+
+<ul>
+	<li>
+		<code>pyproject.toml</code> must contain
+		<a href="https://www.python.org/dev/peps/pep-0621/#dependencies-optional-dependencies">
+			<code>project.dependencies</code>
+		</a>
+	</li>
+	<li>
+		<code>setup.cfg</code> must contain
+		<a href="https://setuptools.readthedocs.io/en/latest/userguide/quickstart.html#dependency-management">
+			<code>options.install_requires</code>
+		</a>
+	</li>
+	<li>
+		<code>setup.py</code> must contain
+		<code>install_requires</code> as an argument to <code>setup</code>
+	</li>
+</ul>

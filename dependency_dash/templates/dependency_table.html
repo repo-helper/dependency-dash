@@ -1,0 +1,45 @@
+<table class="table table-striped table-sm">
+  <thead>
+    <tr>
+      <th scope="col">Package</th>
+      <th scope="col">Requirement</th>
+      <th scope="col">Latest</th>
+      <th scope="col">Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for req, status, data in dependencies %}
+    <tr class="dependency">
+      <td>
+				<div class="d-flex flex-row align-items-center flex-wrap">
+					<div class="p-2">
+						<a href="{{ data["package_url"] }}" title="View on PyPI">{{ req.name }}</a>
+					</div>
+					<div class="p-2 ml-auto pkg-links">
+						{{ format_project_links(data["project_urls"])|safe }}
+						{%- if data["license"].strip() -%}
+							<a class="license-info-hover-target" href="#" data-toggle="tooltip" data-placement="top" title="{{ data["license"] }}"><i class="far fa-file-alt"></i></a>
+						{%- endif -%}
+					</div>
+				</div>
+			</td>
+      <td>{{ req.specifier }}</td>
+      <td>{{ data["version"] }}</td>
+      <td class="status-{{ status }}">{{ status }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+	<script>
+	if (window.matchMedia("(any-hover: none)").matches) {
+	  $('document').ready(function () {
+		  $('[data-toggle=tooltip]').tooltip();
+	  });
+  }
+	</script>
+</table>
+
+<div class="p-2 ml-auto" id="badge" hx-swap-oob="true">
+	<a title="Show badge URLs" data-toggle="collapse" href="#collapseExample" >
+		{{ make_badge(dependencies)|safe }}
+	</a>
+</div>

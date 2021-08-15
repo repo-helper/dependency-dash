@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+
+{% block extrahead %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/fontawesome.min.css') }}">
+{% endblock %}
+
+{% block content %}
+	<div class="d-flex flex-row align-items-baseline flex-wrap">
+		<div class="p-2">
+{#			<h3 class="project-name">{{ project_name }}</h3>#}
+			<h3 class="project-name">
+				<a href="#">{{ username }}</a>
+			</h3>
+		</div>
+		<div class="p-2 repo-link">
+			<a href="https://github.com/{{ username }}" title="View on GitHub" class="repo-link">
+				<i class="fab fa-github"></i>
+			</a>
+		</div>
+		<div class="p-2 ml-auto" id="badge"></div>
+	</div>
+
+<div class="repositories-table table-responsive" hx-indicator=".htmx-indicator">
+  <table class="table table-striped table-sm">
+    <thead>
+      <tr>
+        <th scope="col">Repository</th>
+        <th scope="col">Status</th>
+      </tr>
+    </thead>
+		<tbody>
+			<tr hx-get="{{ data_url }}?page=1" hx-trigger="revealed" hx-swap="afterend"></tr>
+		</tbody>
+  </table>
+  <img class="htmx-indicator centered" width="60" src="/static/bars.svg">
+</div>
+{% endblock content %}

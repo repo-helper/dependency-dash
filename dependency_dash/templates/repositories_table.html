@@ -1,0 +1,16 @@
+{% for repo, (status, status_class) in repositories.items() %}
+<tr class="repository">
+	<td>
+		<a href="https://github.com/{{ repo }}" title="View on GitHub" class="repo-link">
+			<i class="fab fa-github"></i>
+		</a>
+		<span class="unselectable">&nbsp;</span>{{- '' -}}
+		<a href="/github/{{ repo }}">{{ repo }}</a>{{- '' -}}
+	</td>
+	<td hx-get="{{ data_url }}?repo={{ repo }}" hx-trigger="revealed" hx-swap="outerHTML" class="status-unsupported">loading...</td>
+
+</tr>
+{% endfor %}
+{% if repositories %}
+<tr hx-get="{{ data_url }}?page={{ page }}" hx-trigger="revealed" hx-swap="afterend"></tr>
+{% endif %}

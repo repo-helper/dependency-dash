@@ -1,0 +1,65 @@
+[build-system]
+requires = [ "whey",]
+build-backend = "whey"
+
+[project]
+name = "dependency-dash"
+version = "0.0.0"
+description = "A fully Open Source dependency dashboard."
+readme = "README.rst"
+keywords = [ "dashboard", "dependency", "github", "requirement",]
+dynamic = [ "requires-python", "classifiers", "dependencies",]
+
+[[project.authors]]
+name = "Dominic Davis-Foster"
+email = "dominic@davis-foster.co.uk"
+
+
+[project.license]
+file = "LICENSE"
+
+[project.urls]
+Homepage = "https://github.com/repo-helper/dependency-dash"
+"Issue Tracker" = "https://github.com/repo-helper/dependency-dash/issues"
+"Source Code" = "https://github.com/repo-helper/dependency-dash"
+
+[tool.whey]
+base-classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Framework :: Flask",
+    "Intended Audience :: Developers",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
+]
+python-versions = [ "3.7", "3.8", "3.9",]
+python-implementations = [ "CPython",]
+platforms = [ "Linux", "macOS",]
+license-key = "MIT"
+package = "dependency_dash"
+additional-files = [
+    "recursive-include dependency_dash/static *.css",
+    "recursive-include dependency_dash/static *.woff",
+    "recursive-include dependency_dash/static *.woff2",
+    "recursive-include dependency_dash/static *.eot",
+    "recursive-include dependency_dash/static *.ttf",
+    "recursive-include dependency_dash/static *.svg",
+    "recursive-include dependency_dash/static *.jpg",
+    "recursive-include dependency_dash/static *.webp",
+    "recursive-include dependency_dash/templates *.html",
+]
+
+[tool.importcheck]
+always = [ "dependency_dash", "dependency_dash.github", "dependency_dash.pypi", "dependency_dash.routes",]
+
+[tool.mypy]
+python_version = "3.7"
+namespace_packages = true
+check_untyped_defs = true
+warn_unused_ignores = true
+no_implicit_optional = true
+
+[tool.dep_checker]
+allowed_unused = [ "gunicorn", "jinja2",]
+
+[tool.dep_checker.name_mapping]
+github3-py = "github3"

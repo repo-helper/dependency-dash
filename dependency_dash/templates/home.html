@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+
+{% macro searchbox(form) %}
+	{% from "_formhelpers.html" import render_field %}
+	<form action="/search" method="post" class="form-goto">
+		<div class="input-group mb-3 flex-grow">
+			<div class="form-label-group flex-grow">
+				{{ form.search(class_="form-control", placeholder="", aria_label="Repository name", type="search") }}
+				<label for="search">Type in a repository name</label>
+			</div>
+			<div class="input-group-append">
+				<button class="btn btn-outline-secondary" type="submit">Go</button>
+			</div>
+		</div>
+	</form>
+{% endmacro %}
+
+
+{% block content %}
+	<h1>dependency-dash</h1>
+	<p>
+		<code>dependency-dash</code> is a completely Open Source dashboard for viewing
+		the dependency status of a GitHub repository.
+	</p>
+	<p class="goto-label">
+		To get started, type in a repository name below:
+	</p>
+
+	{{ searchbox(form) }}
+
+{% endblock content %}
+
+{% block searchbox %}
+{% endblock %}

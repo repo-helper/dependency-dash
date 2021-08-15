@@ -1,0 +1,5 @@
+{% macro clipboard_for(target) %}
+	<button class="btn" data-clipboard-target="#{{ target }}">
+		<i class="far fa-copy" alt="Copy to clipboard" title="Copy to clipboard"></i>
+	</button>
+{% endmacro %}

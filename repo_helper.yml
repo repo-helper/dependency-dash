@@ -1,0 +1,59 @@
+# Configuration for 'repo_helper' (https://github.com/repo-helper/repo_helper)
+---
+modname: 'dependency-dash'
+copyright_years: '2021'
+author: 'Dominic Davis-Foster'
+email: 'dominic@davis-foster.co.uk'
+username: 'repo-helper'
+assignee: 'domdfcoding'
+version: '0.0.0'
+license: 'MIT'
+short_desc: 'A fully Open Source dependency dashboard.'
+
+use_whey: true
+enable_conda: false
+enable_docs: false
+enable_tests: false
+on_pypi: false
+mypy_version: "0.910"
+
+python_versions:
+ - '3.7'
+ - '3.8'
+ - '3.9'
+ - 3.10-dev
+
+platforms:
+ - Linux
+ - macOS
+
+classifiers:
+ - 'Development Status :: 3 - Alpha'
+ - 'Framework :: Flask'
+ - 'Intended Audience :: Developers'
+ - 'Topic :: Internet :: WWW/HTTP :: Dynamic Content'
+ - 'Topic :: Internet :: WWW/HTTP :: WSGI :: Application'
+
+keywords:
+ - dependency
+ - requirement
+ - dashboard
+ - github
+
+manifest_additional:
+ - recursive-include dependency_dash/static *.css
+ - recursive-include dependency_dash/static *.woff
+ - recursive-include dependency_dash/static *.woff2
+ - recursive-include dependency_dash/static *.eot
+ - recursive-include dependency_dash/static *.ttf
+ - recursive-include dependency_dash/static *.svg
+ - recursive-include dependency_dash/static *.jpg
+ - recursive-include dependency_dash/static *.webp
+ - recursive-include dependency_dash/templates *.html
+
+additional_ignore:
+ - run.py
+ - .env
+
+tox_unmanaged:
+ - testenv

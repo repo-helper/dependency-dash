@@ -1,0 +1,530 @@
+#!/usr/bin/env python3
+#
+#  github.py
+"""
+GitHub backend.
+"""
+#
+#  Copyright © 2021 Dominic Davis-Foster <dominic@davis-foster.co.uk>
+#
+#  Permission is hereby granted, free of charge, to any person obtaining a copy
+#  of this software and associated documentation files (the "Software"), to deal
+#  in the Software without restriction, including without limitation the rights
+#  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#  copies of the Software, and to permit persons to whom the Software is
+#  furnished to do so, subject to the following conditions:
+#
+#  The above copyright notice and this permission notice shall be included in all
+#  copies or substantial portions of the Software.
+#
+#  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+#  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+#  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+#  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+#  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+#  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+#  OR OTHER DEALINGS IN THE SOFTWARE.
+#
+
+# stdlib
+import ast
+import os
+from collections import Counter
+from configparser import ConfigParser
+from contextlib import suppress
+from datetime import datetime
+from operator import itemgetter
+from typing import Any, Callable, Dict, Iterator, List, Set, Tuple, Union
+
+# 3rd party
+import dom_toml
+import github3
+import github3.repos.contents
+import platformdirs
+import requests
+import setup_py_upgrade  # type: ignore
+from domdf_python_tools.paths import PathPlus
+from flask import render_template, request  # type: ignore
+from github3.orgs import Organization
+from github3.repos import ShortRepository
+from github3.users import User
+from packaging.requirements import InvalidRequirement
+from packaging.version import InvalidVersion
+from shippinglabel.requirements import ComparableRequirement, parse_requirements
+
+# this package
+from dependency_dash._app import app
+from dependency_dash.pypi import format_project_links, get_dependency_status, make_badge
+
+__all__ = [
+		"SkipFile",
+		"badge_github_project",
+		"get_requirements_from_github",
+		"get_repo_requirements",
+		"github_project",
+		"github_user",
+		"htmx_github_project",
+		"htmx_github_user",
+		"iter_repos_for_user",
+		"parse_pyproject_toml",
+		"parse_requirements_txt",
+		"parse_setup_cfg",
+		"parse_setup_py"
+		]
+
+try:
+	# 3rd party
+	from dotenv import load_dotenv
+except ImportError:
+	pass
+else:
+	load_dotenv()  # take environment variables from .env.
+
+if "GITHUB_TOKEN" not in os.environ:
+	raise ValueError("'GITHUB_TOKEN' environment variable not found.")
+
+GITHUB = github3.GitHub(token=os.getenv("GITHUB_TOKEN"))
+CACHE_DIR = PathPlus(platformdirs.user_cache_dir("dependency_dash")) / "github"
+
+
+class SkipFile(Exception):
+	"""
+	Indicate that a file should be skipped when searching for the file containing the project's requirements.
+	"""
+
+
+class SetupPyNodeVisitor(setup_py_upgrade.Visitor):
+
+	def __init__(self):
+		super().__init__()
+		self._variables: Dict[str, Any] = {}
+
+	def visit_Assign(self, node: ast.Assign) -> Any:
+		# Can't understand updates to the variable after assignment.
+
+		try:
+			value = ast.literal_eval(node.value)
+		except ValueError:
+			self.generic_visit(node)
+		else:
+			for target in node.targets:
+				if isinstance(target, ast.Name):
+					self._variables[target.id] = value
+
+	def visit_AnnAssign(self, node: ast.AnnAssign) -> Any:
+		# Can't understand updates to the variable after assignment.
+
+		if node.value is None:
+			self.generic_visit(node)
+		else:
+			try:
+				value = ast.literal_eval(node.value)
+			except ValueError:
+				self.generic_visit(node)
+			else:
+				if isinstance(node.target, ast.Name):
+					self._variables[node.target.id] = value
+
+	def visit_Call(self, node: ast.Call) -> None:
+		if setup_py_upgrade.is_setuptools_attr_call(node, "setup"):
+			for kwd in node.keywords:
+				if kwd.arg not in {"install_requires", "extras_require"}:
+					continue
+
+				print(self._variables)
+
+				if isinstance(kwd.value, ast.Name) and kwd.value.id in self._files:
+					self.sections["options"][kwd.arg] = f'file: {self._files[kwd.value.id]}'
+				elif isinstance(kwd.value, ast.Name) and kwd.value.id in self._variables:
+					self.sections["options"][kwd.arg] = self._variables[kwd.value.id]
+				else:
+					with suppress(ValueError):
+						self.sections["options"][kwd.arg] = ast.literal_eval(kwd.value)
+
+		self.generic_visit(node)
+
+
+def parse_requirements_txt(content: bytes) -> Tuple[Set[ComparableRequirement], List[str]]:
+	"""
+	Parse the given ``requirements.txt`` content.
+
+	:param content:
+
+	:returns: A set of requirements listed in the file, and a list of syntactically invalid lines.
+	"""
+
+	if not content:
+		return set(), []  # We assume the presence of an empty file indicates "no requirements"
+
+	requirements, comments, invalid = parse_requirements(
+		content.decode("UTF-8").splitlines(),
+		include_invalid=True,
+		normalize_func=str,
+		)
+
+	return requirements, invalid
+
+
+def parse_pyproject_toml(content: bytes) -> Tuple[Set[ComparableRequirement], List[str]]:
+	"""
+	Parse the given ``pyproject.toml`` content.
+
+	:param content:
+
+	:returns: A set of requirements listed in the file, and a list of syntactically invalid lines.
+	:raises: :exc:`~.SkipFile` if the file has no content,
+		or is missing the ``project.dependencies`` or ``tool.flit.metadata.requires`` key.
+	"""
+
+	if not content:
+		raise SkipFile
+
+	config = dom_toml.loads(content.decode("UTF-8"))
+
+	if "project" in config:
+		# Perhaps SkipFile if key missing?
+		dependencies = config.get("project", {}).get("dependencies", [])
+	elif "flit" in config.get("tool", {}):
+		dependencies = config.get("tool", {}).get("flit", {}).get("metadata", {}).get("requires", [])
+	else:
+		raise SkipFile
+
+	requirements, comments, invalid_lines = parse_requirements(
+		dependencies,
+		include_invalid=True,
+		normalize_func=str,
+		)
+	return requirements, invalid_lines
+
+
+def parse_setup_cfg(content: bytes) -> Tuple[Set[ComparableRequirement], List[str]]:
+	"""
+	Parse the given ``setup.cfg`` content.
+
+	:param content:
+
+	:returns: A set of requirements listed in the file, and a list of syntactically invalid lines.
+	:raises: :exc:`~.SkipFile` if the file has no content, or is missing the ``options.install_requires``.
+	"""
+
+	if not content:
+		raise SkipFile
+
+	parser = ConfigParser()
+	parser.read_string(content.decode("UTF-8"))
+
+	if "options" not in parser.sections():
+		raise SkipFile
+
+	options_section = parser["options"]
+
+	if "install_requires" in options_section:
+		dependencies = map(str.strip, options_section.get("install_requires").splitlines())
+	else:
+		raise SkipFile
+
+	requirements, comments, invalid_lines = parse_requirements(
+		dependencies,
+		include_invalid=True,
+		normalize_func=str,
+		)
+	return requirements, invalid_lines
+
+
+def parse_setup_py(content: bytes) -> Tuple[Set[ComparableRequirement], List[str]]:
+	"""
+	Parse the given ``setup.cfg`` content.
+
+	:param content:
+
+	:returns: A set of requirements listed in the file, and a list of syntactically invalid lines.
+	:raises: :exc:`~.SkipFile` if the file has no content,
+		or is missing the ``install_requires`` argument to ``setup``.
+	"""
+
+	if not content:
+		raise SkipFile
+
+	try:
+		tree = ast.parse(content, filename="setup.py")
+	except SyntaxError:
+		raise SkipFile
+
+	visitor = SetupPyNodeVisitor()
+
+	try:
+		visitor.visit(tree)
+	except Exception:
+		raise SkipFile
+
+	options_section = visitor.sections["options"]
+
+	if "install_requires" in options_section:
+		dependencies = options_section["install_requires"]
+	else:
+		raise SkipFile
+
+	requirements, comments, invalid_lines = parse_requirements(
+		dependencies,
+		include_invalid=True,
+		normalize_func=str,
+		)
+	return requirements, invalid_lines
+
+
+def get_repo_requirements(repository: ShortRepository) -> Tuple[Set[ComparableRequirement], List[str]]:
+	"""
+	Returns the requirements specified for the given repository.
+
+	The following files are searched, in order:
+
+	* ``requirements.txt``
+	* ``pyproject.toml``
+	* ``setup.cfg``
+	* ``setup.py``
+
+	:param repository:
+
+	:returns: A set of requirements listed in the file, and a list of syntactically invalid lines.
+	"""
+
+	for function, filename in [
+		(parse_requirements_txt, "requirements.txt"),
+		(parse_pyproject_toml, "pyproject.toml"),
+		(parse_setup_cfg, "setup.cfg"),
+		(parse_setup_py, "setup.py"),
+		]:
+
+		try:
+			return get_requirements_from_github(
+					repository.full_name, repository.default_branch, file=filename, parse_func=function
+					)
+		except (requests.HTTPError, SkipFile):
+			continue
+
+	raise NotImplementedError
+
+
+@app.route("/github/<username>/<repository>/")
+def github_project(username: str, repository: str):
+	"""
+	Route for displaying information about a single github repository.
+
+	:param username: The user or organization that owns the repository.
+	:param repository: The repository name.
+	"""
+
+	return render_template(
+			"project.html",
+			project_name=f"{username}/{repository}",
+			data_url=f"/htmx/github/{username}/{repository}",
+			root_url="http://localhost:8001"
+			)
+
+
+@app.route("/htmx/github/<username>/<repository>/")
+def htmx_github_project(username: str, repository: str):
+	"""
+	HTMX callback for obtaining the requirements table for the given repository.
+
+	:param username: The user or organization that owns the repository.
+	:param repository: The repository name.
+	"""
+
+	try:
+		repo = GITHUB.repository(username, repository)
+	except github3.exceptions.NotFoundError:
+		return "<h6>Repository not found.</h6>"
+
+	try:
+		requirements, invalid = get_repo_requirements(repo)
+	except NotImplementedError:
+		return render_template("no_supported_files.html")
+	else:
+		# TODO: list invalid requirements
+		return render_template(
+				"dependency_table.html",
+				dependencies=list(get_dependency_status(requirements)),
+				format_project_links=format_project_links,
+				make_badge=make_badge,
+				)
+
+
+@app.route("/badge/github/<username>/<repository>/")
+def badge_github_project(username: str, repository: str):
+	"""
+	Route for displaying the status badge for the given project.
+
+	:param username: The user or organization that owns the repository.
+	:param repository: The repository name.
+	"""
+
+	# TODO: etag caching
+
+	try:
+		repo = GITHUB.repository(username, repository)
+	except github3.exceptions.NotFoundError:
+		return "Repository not found.", 404
+
+	try:
+		requirements, invalid = get_repo_requirements(repo)
+	except github3.exceptions.NotFoundError:
+		return render_template("no_supported_files.html"), 404
+	else:
+		return make_badge(get_dependency_status(requirements))
+
+
+@app.route("/github/<username>/")
+def github_user(username: str):
+	"""
+	Route for displaying information about a all repositories owned by ``username``.
+
+	:param username: The user or organization to display information for.
+	"""
+
+	return render_template(
+			"user.html",
+			username=username,
+			data_url=f"/htmx/github/{username}",
+			)
+
+
+@app.route("/htmx/github/<username>/")
+def htmx_github_user(username: str):
+	"""
+	HTMX callback for obtaining the projects table for the given user.
+
+	:param username: The user or organization to display information for.
+	"""
+
+	if "repo" in request.args:
+		repo = GITHUB.repository(*request.args["repo"].split('/'))
+
+		try:
+			requirements, invalid = get_repo_requirements(repo)
+		except NotImplementedError:
+			return render_template("repository_status.html", status="unsupported")
+
+		try:
+			dependencies = list(get_dependency_status(requirements))
+			status_counts = Counter(map(itemgetter(1), dependencies))
+
+			if not status_counts or set(status_counts.keys()) == {"up-to-date"}:
+				return render_template("repository_status.html", status="up-to-date")
+			# TODO: insecure
+			else:
+				return render_template(
+						"repository_status.html",
+						status=f'{status_counts["outdated"]} outdated',
+						status_class="status-outdated"
+						)
+		except (InvalidRequirement, InvalidVersion):
+			return render_template("repository_status.html", status="invalid")
+
+	page = request.args.get("page", 1)
+
+	try:
+		user = GITHUB.user(username)
+	except github3.exceptions.NotFoundError:
+		try:
+			user = GITHUB.organization(username)
+		except github3.exceptions.NotFoundError:
+			return "<h6>User not found.</h6>"
+
+	repositories = {}
+
+	for repo in iter_repos_for_user(user, page):
+		repositories[repo.full_name] = ("loading...", "status-unsupported")
+
+	return render_template(
+			"repositories_table.html",
+			repositories=repositories,
+			data_url=f"/htmx/github/{username}",
+			page=int(page) + 1,
+			)
+
+
+def iter_repos_for_user(
+		user_or_org: Union[User, Organization],
+		page: int,
+		) -> Iterator[ShortRepository]:
+	"""
+	Returns an iterator over all repositories owned py ``user_or_org``.
+
+	:param user_or_org:
+	:param page: The page of the repositories (30 repositories per page) to return.
+	"""
+
+	url = user_or_org._build_url("users", user_or_org.login, "repos")
+	params = {"type": "owner", "sort": "full_name", "direction": "asc", "per_page": 30, "page": int(page)}
+
+	yield from user_or_org._iter(30, url, ShortRepository, params)
+
+
+def get_requirements_from_github(
+		repository: str,
+		default_branch: str,
+		file: str,
+		parse_func: Callable[[bytes], Tuple[Set[ComparableRequirement], List[str]]],
+		) -> Tuple[Set[ComparableRequirement], List[str]]:
+	"""
+	Download a file from GitHub, and parse requirements from it.
+
+	:param repository: The repository to obtain the file from (in the form ``<user>/<repo>``).
+	:param default_branch: The repository's default branch (e.g. ``'master'``).
+	:param file: The file to download (as a full path relative to the repository root).
+	:param parse_func: The function used for parsing the requirements.
+
+	:returns: A set of requirements listed in the file, and a list of syntactically invalid lines.
+	"""
+
+	datafile = CACHE_DIR / repository / f"{file}.dat"
+	datafile.parent.maybe_make(parents=True)
+	url = f"https://raw.githubusercontent.com/{repository}/{default_branch}/{file}"
+
+	etag: str
+	expires: datetime
+
+	try:
+		data: List[str] = datafile.read_lines()
+	except FileNotFoundError:
+		response = requests.get(url, timeout=10)
+		if response.status_code != 200:
+			raise requests.HTTPError  # TODO: better error
+
+		etag = response.headers["etag"]
+		expires = datetime.strptime(response.headers["expires"], "%a, %d %b %Y %H:%M:%S %Z")
+		content = response.content
+		requirements, invalid_lines = parse_func(content)
+	else:
+		etag = data[0]
+		expires = datetime.fromisoformat(data[1])
+		requirements_block = data[2:]
+		marker = requirements_block.index('\ue000')
+		requirements = set(map(ComparableRequirement, requirements_block[:marker]))
+		invalid_lines = requirements_block[marker + 1:]
+
+		if expires > datetime.utcnow():
+			# Nothing changed
+			return requirements, invalid_lines
+		else:
+			response = requests.get(url, timeout=10, headers={"If-None-Match": etag})
+			if response.status_code not in (200, 304):
+				raise requests.HTTPError  # TODO: better error
+
+			if response.status_code == 200:
+				content = response.content
+				requirements, invalid_lines = parse_func(content)
+
+			etag = response.headers["etag"]
+			expires = datetime.strptime(response.headers["expires"], "%a, %d %b %Y %H:%M:%S %Z")
+
+	data = [
+			etag,
+			expires.isoformat(),
+			*map(str, requirements),
+			'\ue000',
+			*invalid_lines,
+			]
+	datafile.write_lines(data)
+	return requirements, invalid_lines
