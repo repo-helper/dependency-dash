@@ -30,10 +30,12 @@ Don't import from here; import directly from ``dependency_dash`` itself.
 
 # stdlib
 import os
+from http import HTTPStatus
+from typing import Optional
 
 # 3rd party
 from domdf_python_tools.paths import PathPlus
-from flask import Flask  # type: ignore
+from flask import Flask, Response, redirect, request, url_for  # type: ignore
 
 __all__ = ["inject_constants"]
 
@@ -46,3 +48,24 @@ def inject_constants():
 			"show_sidebar": False,
 			"root_url": os.getenv("DD_ROOT_URL", "http://localhost:5000"),
 			}
+
+
+def https_redirect() -> Optional[Response]:
+	# Based on https://stackoverflow.com/a/59771351
+	# By Maximilian Burszley <https://stackoverflow.com/users/8188846/maximilian-burszley>
+	# CC BY-SA 4.0
+
+	if not request.endpoint:
+		return None
+
+	if request.scheme != "http":
+		return None
+
+	return redirect(
+			url_for(request.endpoint, _scheme="https", _external=True),
+			HTTPStatus.PERMANENT_REDIRECT,
+			)
+
+
+if "ON_HEROKU" in os.environ:
+	app.before_request(https_redirect)  # type: ignore
