@@ -69,3 +69,9 @@ def https_redirect() -> Optional[Response]:
 
 if "ON_HEROKU" in os.environ:
 	app.before_request(https_redirect)  # type: ignore
+
+
+@app.after_request
+def add_header(response):
+	response.headers['X-Clacks-Overhead'] = "GNU Terry Pratchett"
+	return response
