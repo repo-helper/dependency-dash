@@ -62,7 +62,13 @@ def https_redirect() -> Optional[Response]:
 		return None
 
 	return redirect(
-			url_for(request.endpoint, _scheme="https", _external=True),
+			url_for(
+					request.endpoint,
+					_scheme="https",
+					_external=True,
+					**(request.view_args or {}),
+					**(request.args or {}),
+					),
 			HTTPStatus.PERMANENT_REDIRECT,
 			)
 
