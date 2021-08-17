@@ -370,7 +370,7 @@ def badge_github_project(username: str, repository: str):
 		return "Repository not found.", 404
 
 	try:
-		requirements, invalid = get_repo_requirements(repo)
+		filename, requirements, invalid = get_repo_requirements(repo)
 	except github3.exceptions.NotFoundError:
 		return render_template("no_supported_files.html"), 404
 	else:
@@ -404,7 +404,7 @@ def htmx_github_user(username: str):
 		repo = GITHUB.repository(*request.args["repo"].split('/'))
 
 		try:
-			requirements, invalid = get_repo_requirements(repo)
+			filename, requirements, invalid = get_repo_requirements(repo)
 		except NotImplementedError:
 			return render_template("repository_status.html", status="unsupported")
 
