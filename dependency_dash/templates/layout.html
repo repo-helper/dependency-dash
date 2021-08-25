@@ -66,6 +66,7 @@
 						{{ navbar_link("Usage", "/usage") }}
 						{{ navbar_link("Configuration", "/configuration") }}
             </div>
+
             <!-- Navbar Right Side -->
             <div class="navbar-nav">
 							{% block searchbox %}
@@ -77,9 +78,6 @@
 									>
 									<button class="btn btn-success my-2 my-sm-0" type="submit">Go</button>
 								</form>
-{#								TODO: style correctly #}
-{#							{% from "_searchbox.html" import searchbox %}#}
-{#							{{ searchbox() }}#}
 							{% endblock %}
             </div>
           </div>

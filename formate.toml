@@ -38,6 +38,7 @@ known_third_party = [
     "github3_py",
     "gunicorn",
     "jinja2",
+    "markdown",
     "packaging",
     "platformdirs",
     "pybadges",
