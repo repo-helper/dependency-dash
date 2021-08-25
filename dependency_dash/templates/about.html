@@ -2,7 +2,7 @@
 {% set title="About" %}
 
 {% block extrahead %}
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/fontawesome.min.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/fontawesome.min.css') }}">
 {% endblock %}
 
 {% macro github_link(name) %}
@@ -30,7 +30,5 @@
 			on <a href="https://unsplash.com">Unsplash</a>
 		</figcaption>
 	</figure>
-
-
 
 {% endblock content %}

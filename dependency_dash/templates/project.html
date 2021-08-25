@@ -3,7 +3,7 @@
 {% set owner, repo_name = project_name.split("/", 1) %}
 
 {% block extrahead %}
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/fontawesome.min.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/fontawesome.min.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -22,37 +22,36 @@
 		<div class="p-2 ml-auto" id="badge"></div>
 	</div>
 
-<div class="collapse badge-urls" id="badge-urls">
-  <div class="card card-body">
-    <div ng-show="displayBadge">
+	<div class="collapse badge-urls" id="badge-urls">
+		<div class="card card-body">
+			<div ng-show="displayBadge">
 
-			{% from "_clipboard_helper.html" import clipboard_for %}
-			{{ clipboard_for("badge-rst") }}
-			<p>reStructuredText:</p>
-			<pre id="badge-rst">.. image:: {{ root_url }}/badge/github/{{ project_name }}
+				{% from "_clipboard_helper.html" import clipboard_for %}
+				{{ clipboard_for("badge-rst") }}
+				<p>reStructuredText:</p>
+				<pre id="badge-rst">.. image:: {{ root_url }}/badge/github/{{ project_name }}
     :target: {{ root_url }}/github/{{ project_name }}
     :alt: Requirements Status</pre>
 
-			{{ clipboard_for("badge-md") }}
-			<p>Markdown:</p>
-			<pre id="badge-md">[![Requirements Status]({{ root_url }}/badge/github/{{ project_name }})]({{ root_url }}/github/{{ project_name }})</pre>
+				{{ clipboard_for("badge-md") }}
+				<p>Markdown:</p>
+				<pre id="badge-md">[![Requirements Status]({{ root_url }}/badge/github/{{ project_name }})]({{ root_url }}/github/{{ project_name }})</pre>
 
-			{{ clipboard_for("badge-html") }}
-			<p>HTML:</p>
-			<pre id="badge-html">&lt;a href="{{ root_url }}/github/{{ project_name }}"&gt;&lt;img src="{{ root_url }}/badge/github/{{ project_name }}" alt="Requirements Status" /&gt;&lt;/a&gt;</pre>
+				{{ clipboard_for("badge-html") }}
+				<p>HTML:</p>
+				<pre id="badge-html">&lt;a href="{{ root_url }}/github/{{ project_name }}"&gt;&lt;img src="{{ root_url }}/badge/github/{{ project_name }}" alt="Requirements Status" /&gt;&lt;/a&gt;</pre>
 
-		</div>
-  </div>
-</div>
+			</div>
+  	</div>
+	</div>
 
-<div class="dependency-table table-responsive" hx-get="{{ data_url }}" hx-trigger="revealed" hx-swap="innerHTML">
-  <table class="table table-sm">
-  </table>
-  <img class="htmx-indicator centered" width="60" src="/static/bars.svg">
-</div>
+	<div class="dependency-table table-responsive" hx-get="{{ data_url }}" hx-trigger="revealed" hx-swap="innerHTML">
+		<table class="table table-sm"></table>
+		<img class="htmx-indicator centered" width="60" src="/static/bars.svg">
+	</div>
 {% endblock content %}
 
 {% block scripts %}
-<script src="https://unpkg.com/clipboard@2/dist/clipboard.min.js"></script>
-<script>new ClipboardJS('.badge-urls .btn');</script>
+	<script src="https://unpkg.com/clipboard@2/dist/clipboard.min.js"></script>
+	<script>new ClipboardJS('.badge-urls .btn');</script>
 {% endblock %}
