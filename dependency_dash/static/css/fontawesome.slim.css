@@ -225,6 +225,8 @@ readers do not read off random characters that represent icons */
 .fa-file-alt:before {
   content: "\f15c"; }
 
+.fa-lightbulb:before {
+  content: "\f0eb"; }
 
 .sr-only {
   border: 0;

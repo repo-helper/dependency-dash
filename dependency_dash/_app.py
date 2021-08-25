@@ -47,6 +47,7 @@ def inject_constants():
 	return {
 			"show_sidebar": False,
 			"root_url": os.getenv("DD_ROOT_URL", "http://localhost:5000"),
+			"list": list,
 			}
 
 
@@ -79,5 +80,5 @@ if "ON_HEROKU" in os.environ:
 
 @app.after_request
 def add_header(response):
-	response.headers['X-Clacks-Overhead'] = "GNU Terry Pratchett"
+	response.headers["X-Clacks-Overhead"] = "GNU Terry Pratchett"
 	return response

@@ -55,10 +55,20 @@ h1, h2, h3, h4, h5, h6 {
     background-color: rgb(145, 145, 145);
 }
 
+
+.dependency-table table.table-sm tr.dependency td{
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+
 .pkg-links {
     font-size: 1.5rem;
     letter-spacing: 0.3rem;
-    padding: 10px 0 0 0;
+    /*padding: 10px 0 0 0;*/
+    padding: 0 0 0 0;
 }
 
 
@@ -94,6 +104,7 @@ h1, h2, h3, h4, h5, h6 {
 
 tr.repository td, tr.dependency td {
     vertical-align: middle;
+    padding-right: 10px;
 }
 
 a.repo-link {
@@ -239,17 +250,19 @@ pre.license {
 }
 
 h3.project-name {
-        overflow-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 @media screen and (max-width: 576px) {
-        h3.project-name {
-                font-size: 1.25rem;
-        }
-
-        div.dependency-table table tr {
-                font-size: 14px;
-        }
+    h3.project-name {
+            font-size: 1.25rem;
+    }
+    div.dependency-table table tr {
+            font-size: 14px;
+    }
+    section.dependency-table-header button, section.dependency-table-header button h5 {
+        font-size: 1rem;
+    }
 }
 
 img.cookies {
@@ -258,4 +271,69 @@ img.cookies {
 
 footer {
     margin-bottom: 20px;
+}
+
+section.dependency-table-header {
+    padding-top: 70px;
+    margin-top: -65px;
+    padding-bottom: 5px;
+}
+
+section.dependency-table-header button {
+    background-color: rgb(222, 226, 230);
+    width: 98%;
+    margin: 2px;
+}
+
+section.dependency-table-header button h5 {
+    color: inherit;
+    vertical-align: bottom;
+    margin-bottom: 0;
+}
+
+section.dependency-table-header button i.fa {
+    float: left;
+}
+
+section.dependency-table-header button i.fa-lightbulb {
+    float: right;
+        font-size: 1.2rem;
+
+}
+
+section.dependency-table-header button i.fa::before {
+    float: left;
+    height: 100%;
+    border: black;
+    margin-bottom: 25%;
+    margin-top: 25%;
+}
+
+section.dependency-table-header button i.fa-lightbulb::before {
+    float: right;
+    height: 100%;
+    border: black;
+    margin-bottom: 10%;
+    margin-top: 10%;
+}
+
+[data-toggle="collapse"] .fa.collapse-indicator:before {
+  content: "\f139";
+}
+
+[data-toggle="collapse"].collapsed .fa.collapse-indicator:before {
+  content: "\f13a";
+}
+
+.navbar.fixed-top .navbar-brand.navbar-page-title {
+    position: fixed;
+    opacity: 0;
+    transition: opacity .25s ease-out;
+
+}
+
+.navbar.fixed-top.nav-scrolled .navbar-brand.navbar-page-title {
+    transition: opacity .25s ease-in;
+    opacity: 1;
+    top: 8px;
 }

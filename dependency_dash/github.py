@@ -29,6 +29,7 @@ GitHub backend.
 # stdlib
 import ast
 import os
+import re
 from collections import Counter
 from configparser import ConfigParser
 from contextlib import suppress
@@ -54,6 +55,7 @@ from shippinglabel.requirements import ComparableRequirement, parse_requirements
 
 # this package
 from dependency_dash._app import app
+from dependency_dash.htmx import htmx
 from dependency_dash.pypi import format_project_links, get_dependency_status, make_badge
 
 __all__ = [
@@ -182,10 +184,13 @@ def parse_pyproject_toml(content: bytes) -> Tuple[Set[ComparableRequirement], Li
 	config = dom_toml.loads(content.decode("UTF-8"))
 
 	if "project" in config:
-		# Perhaps SkipFile if key missing?
-		dependencies = config.get("project", {}).get("dependencies", [])
+		if "dependencies" not in config["project"]:
+			raise SkipFile
+		dependencies = config["project"]["dependencies"]
 	elif "flit" in config.get("tool", {}):
-		dependencies = config.get("tool", {}).get("flit", {}).get("metadata", {}).get("requires", [])
+		if "requires" not in config["tool"].get("flit", {}).get("metadata", {}):
+			raise SkipFile
+		dependencies = config["tool"]["flit"]["metadata"]["requires"]
 	else:
 		raise SkipFile
 
@@ -272,7 +277,7 @@ def parse_setup_py(content: bytes) -> Tuple[Set[ComparableRequirement], List[str
 	return requirements, invalid_lines
 
 
-def get_repo_requirements(repository: ShortRepository) -> Tuple[str, Set[ComparableRequirement], List[str]]:
+def get_repo_requirements(repository: ShortRepository) -> List[Tuple[str, Set[ComparableRequirement], List[str], bool]]:
 	"""
 	Returns the requirements specified for the given repository.
 
@@ -285,17 +290,56 @@ def get_repo_requirements(repository: ShortRepository) -> Tuple[str, Set[Compara
 
 	:param repository:
 
-	:returns: The filename containing the requirements,
-		a set of requirements listed in the file, and a list of syntactically invalid lines.
+	:returns: An iterator of tuples containing:
+
+	* The filename containing the requirements,
+	* a set of requirements listed in the file,
+	* a list of syntactically invalid lines,
+	* and whether the file's requirements should count towards the overall status.
 	"""
 
-	for function, filename in [
-		(parse_requirements_txt, "requirements.txt"),
-		(parse_pyproject_toml, "pyproject.toml"),
-		(parse_setup_cfg, "setup.cfg"),
-		(parse_setup_py, "setup.py"),
-		]:
+	try:
+		files = get_our_config(repository.full_name, repository.default_branch)
+	except (requests.HTTPError, KeyError):
+		lookup_map = [
+				(parse_requirements_txt, "requirements.txt", True),
+				(parse_pyproject_toml, "pyproject.toml", True),
+				(parse_setup_cfg, "setup.cfg", True),
+				(parse_setup_py, "setup.py", True),
+				]
 
+	else:
+		lookup_map = []
+
+		# sort by "order" attribute
+		for filename, file_config in sorted(files.items(), key=lambda i: i[1].get("order", 0)):
+			print(filename, file_config.get("order"))
+			counts = file_config.get("include", True)
+
+			if "format" in file_config:
+				file_format = file_config["format"]
+			elif filename == "pyproject.toml":
+				file_format = "pyproject.toml"
+			elif filename == "setup.cfg":
+				file_format = "setup.cfg"
+			elif filename == "setup.py":
+				file_format = "setup.py"
+			else:
+				file_format = "requirements.txt"
+
+			if file_format == "pyproject.toml":
+				lookup_map.append((parse_pyproject_toml, filename, counts))
+			elif file_format == "setup.cfg":
+				lookup_map.append((parse_setup_cfg, filename, counts))
+			elif file_format == "setup.py":
+				lookup_map.append((parse_setup_py, filename, counts))
+			else:
+				lookup_map.append((parse_requirements_txt, filename, counts))
+			# TODO: error on unrecognised format?
+
+	output = []
+
+	for function, filename, counts in lookup_map:
 		try:
 			requirements, invalid_lines = get_requirements_from_github(
 				repository.full_name, repository.default_branch, file=filename, parse_func=function
@@ -303,9 +347,13 @@ def get_repo_requirements(repository: ShortRepository) -> Tuple[str, Set[Compara
 		except (requests.HTTPError, SkipFile):
 			continue
 		else:
-			return filename, requirements, invalid_lines
+			output.append((filename, requirements, invalid_lines, counts))
 
-	raise NotImplementedError
+	if output:
+		return output
+	else:
+		raise NotImplementedError
+
 
 
 @app.route("/github/<username>/<repository>/")
@@ -324,7 +372,14 @@ def github_project(username: str, repository: str):
 			)
 
 
-@app.route("/htmx/github/<username>/<repository>/")
+_normalize_pattern = re.compile(r"\W+")
+
+
+def _normalize(name: str) -> str:
+	return _normalize_pattern.sub('-', name)
+
+
+@htmx(app, "/github/<username>/<repository>/")
 def htmx_github_project(username: str, repository: str):
 	"""
 	HTMX callback for obtaining the requirements table for the given repository.
@@ -339,17 +394,19 @@ def htmx_github_project(username: str, repository: str):
 		return "<h6>Repository not found.</h6>"
 
 	try:
-		filename, requirements, invalid = get_repo_requirements(repo)
+		data = get_repo_requirements(repo)
 	except NotImplementedError:
 		return render_template("no_supported_files.html")
 	else:
+
 		# TODO: list invalid requirements
 		return render_template(
 				"dependency_table.html",
-				filename=filename,
-				dependencies=list(get_dependency_status(requirements)),
+				data=data,
+				get_dependency_status=get_dependency_status,
 				format_project_links=format_project_links,
 				make_badge=make_badge,
+				normalize=_normalize,
 				)
 
 
@@ -370,11 +427,16 @@ def badge_github_project(username: str, repository: str):
 		return "Repository not found.", 404
 
 	try:
-		filename, requirements, invalid = get_repo_requirements(repo)
-	except github3.exceptions.NotFoundError:
+		data = get_repo_requirements(repo)
+	except NotImplementedError:
 		return render_template("no_supported_files.html"), 404
 	else:
-		return make_badge(get_dependency_status(requirements))
+		all_requirements = []
+		for filename, requirements, invalid, include in data:
+			if include:
+				all_requirements.extend(requirements)
+
+		return make_badge(get_dependency_status(all_requirements))
 
 
 @app.route("/github/<username>/")
@@ -531,3 +593,71 @@ def get_requirements_from_github(
 			]
 	datafile.write_lines(data)
 	return requirements, invalid_lines
+
+
+def get_our_config(
+		repository: str,
+		default_branch: str,
+		) -> Dict[str, Dict[str, Any]]:
+	"""
+	Parse our config from the ``pyproject.toml`` file from GitHub.
+
+	:param repository: The repository to obtain the file from (in the form ``<user>/<repo>``).
+	:param default_branch: The repository's default branch (e.g. ``'master'``).
+
+	:returns: The file's contents, parsed as a dictionary.
+	"""
+
+	# This makes another request, but I can't find a better way to lay everything out.
+
+	datafile = CACHE_DIR / repository / "dependency-dash.dat"
+	datafile.parent.maybe_make(parents=True)
+	url = f"https://raw.githubusercontent.com/{repository}/{default_branch}/pyproject.toml"
+
+	etag: str
+	expires: datetime
+
+	try:
+		data: Dict[str, Any] = datafile.load_json()
+	except FileNotFoundError:
+		response = requests.get(url, timeout=10)
+		if response.status_code != 200:
+			raise requests.HTTPError  # TODO: better error
+
+		etag = response.headers["etag"]
+		expires = datetime.strptime(response.headers["expires"], "%a, %d %b %Y %H:%M:%S %Z")
+		config = dom_toml.loads(response.text)
+		if "dependency-dash" not in config.get("tool", {}):
+			raise KeyError
+
+		files = config["tool"]["dependency-dash"]
+
+	else:
+		etag = data["etag"]
+		expires = datetime.fromisoformat(data["expires"])
+		files = data["files"]
+
+		if expires > datetime.utcnow():
+			# Nothing changed
+			return files
+		else:
+			response = requests.get(url, timeout=10, headers={"If-None-Match": etag})
+			if response.status_code not in (200, 304):
+				raise requests.HTTPError  # TODO: better error
+
+			if response.status_code == 200:
+				config = dom_toml.loads(response.text)
+				if "dependency-dash" not in config.get("tool", {}):
+					raise KeyError
+				files = config["tool"]["dependency-dash"]
+
+			etag = response.headers["etag"]
+			expires = datetime.strptime(response.headers["expires"], "%a, %d %b %Y %H:%M:%S %Z")
+
+	data = {
+			"etag": etag,
+			"expires": expires.isoformat(),
+			"files": files,
+			}
+	datafile.dump_json(data)
+	return files

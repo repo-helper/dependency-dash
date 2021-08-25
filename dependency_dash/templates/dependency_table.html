@@ -1,11 +1,28 @@
-<h5 class="text-center">{{ filename }}</h5>
-<table class="table table-striped table-sm">
+{% set badge_data = [] %}
+
+{% for filename, requirements, invalid, counts in data %}
+{% set dependencies = list(get_dependency_status(requirements)) %}
+{% set anchor_id = normalize(filename) %}
+<section id="{{ filename }}" class="dependency-table-header  text-center">
+<button class="btn text-center" type="button" data-toggle="collapse" data-target="#{{ anchor_id }}" aria-expanded="true" aria-controls="{{ anchor_id }}">
+	<i class="fa collapse-indicator"></i>
+	{% if counts %}
+	{{ badge_data.extend(dependencies) or '' }}
+	<i class="fas fa-lightbulb" title="This file counts towards the overall status"></i>
+	{% else %}
+	<i class="far fa-lightbulb" title="This file doesn't count towards the overall status"></i>
+	{% endif %}
+	<h5>{{ filename }}</h5>
+</button>
+</section>
+<div class="collapse show" id="{{ anchor_id }}">
+<table class="table table-striped table-sm collapse show">
   <thead>
     <tr>
       <th scope="col">Package</th>
-      <th scope="col">Requirement</th>
-      <th scope="col">Latest</th>
-      <th scope="col">Status</th>
+      <th scope="col" class="text-right">Requirement</th>
+      <th scope="col" class="text-right">Latest</th>
+      <th scope="col" class="text-center">Status</th>
     </tr>
   </thead>
   <tbody>
@@ -24,8 +41,8 @@
 					</div>
 				</div>
 			</td>
-      <td>{{ req.specifier }}</td>
-      <td>{{ data["version"] }}</td>
+      <td class="text-right">{{ req.specifier }}</td>
+      <td class="text-right">{{ data["version"] }}</td>
       <td class="status-{{ status }}">{{ status }}</td>
     </tr>
     {% endfor %}
@@ -38,9 +55,11 @@
   }
 	</script>
 </table>
+</div>
+{% endfor %}
 
 <div class="p-2 ml-auto" id="badge" hx-swap-oob="true">
-	<a title="Show badge URLs" data-toggle="collapse" href="#collapseExample" >
-		{{ make_badge(dependencies)|safe }}
+	<a title="Show badge URLs" data-toggle="collapse" href="#badge-urls" >
+		{{ make_badge(badge_data)|safe }}
 	</a>
 </div>
