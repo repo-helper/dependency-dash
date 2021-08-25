@@ -55,6 +55,10 @@ h1, h2, h3, h4, h5, h6 {
 	background-color: rgb(145, 145, 145);
 }
 
+tr.repository td, tr.dependency td {
+	vertical-align: middle;
+	padding-right: 10px;
+}
 
 .dependency-table table.table-sm tr.dependency td {
 	padding-top: 0;
@@ -62,15 +66,6 @@ h1, h2, h3, h4, h5, h6 {
 	margin-top: 0;
 	margin-bottom: 0;
 }
-
-
-.pkg-links {
-	font-size: 1.5rem;
-	letter-spacing: 0.3rem;
-	/* padding: 10px 0 0 0; */
-	padding: 0;
-}
-
 
 .pkg-links a:link, .pkg-links a:visited {
 	color: black;
@@ -80,12 +75,18 @@ h1, h2, h3, h4, h5, h6 {
 	color: rgba(0, 0, 0, 0.75);
 }
 
+.pkg-links a.license-info-hover-target {
+	cursor: default;
+}
+
 .pkg-links a.license-info-hover-target:hover {
 	color: black;
 }
 
-.pkg-links a.license-info-hover-target {
-	cursor: default;
+.pkg-links {
+	font-size: 1.5rem;
+	letter-spacing: 0.3rem;
+	padding: 0;	/* padding: 10px 0 0 0; */
 }
 
 
@@ -102,13 +103,15 @@ h1, h2, h3, h4, h5, h6 {
 	user-select: none; /* Standard */
 }
 
-tr.repository td, tr.dependency td {
-	vertical-align: middle;
-	padding-right: 10px;
-}
-
 a.repo-link {
 	text-decoration: none;
+}
+
+a.repo-link:hover,
+.about-links i.fa-github:hover,
+a.github-link i.fa-github:hover,
+a.docs-link i.fa-book:hover {
+	color: rgba(0, 0, 0, 0.75);
 }
 
 a.repo-link:link,
@@ -120,13 +123,6 @@ a.github-link:visited i.fa-github,
 a.docs-link:link i.fa-book,
 a.docs-link:visited i.fa-book {
 	color: black;
-}
-
-a.repo-link:hover,
-.about-links i.fa-github:hover,
-a.github-link i.fa-github:hover,
-a.docs-link i.fa-book:hover {
-	color: rgba(0, 0, 0, 0.75);
 }
 
 .form-goto {
@@ -162,9 +158,9 @@ a.docs-link i.fa-book:hover {
 }
 
 .form-label-group input::-webkit-input-placeholder,
-.form-label-group input:-ms-input-placeholder,
-.form-label-group input::-ms-input-placeholder,
 .form-label-group input::-moz-placeholder,
+.form-label-group input::-ms-input-placeholder,
+.form-label-group input:-ms-input-placeholder,
 .form-label-group input::placeholder {
 	color: transparent;
 }

@@ -55,6 +55,7 @@ manifest_additional:
 additional_ignore:
  - run.py
  - .env
+ - "**/.sass-cache"
 
 tox_unmanaged:
  - testenv

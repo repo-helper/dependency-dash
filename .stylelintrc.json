@@ -6,6 +6,6 @@
     "max-empty-lines": [2, {}],
     "selector-list-comma-newline-after": null,
     "media-feature-name-no-unknown": null,
-    "shorthand-property-no-redundant-values": [true, {}]
-  }
+    "shorthand-property-no-redundant-values": [true, {}],
+    "at-rule-no-unknown": [true, {"ignoreAtRules": ["function", "for", "return", "mixin", "include"]}]}
 }
