@@ -363,10 +363,13 @@ def github_project(username: str, repository: str):
 	:param repository: The repository name.
 	"""
 
+	project_name = f"{username}/{repository}"
+
 	return render_template(
 			"project.html",
-			project_name=f"{username}/{repository}",
+			project_name=project_name,
 			data_url=f"/htmx/github/{username}/{repository}",
+			description=f"Dependency status for https://github.com/{project_name}",
 			)
 
 

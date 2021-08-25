@@ -1,4 +1,5 @@
 {% extends "layout.html" %}
+{% set description = "dependency-dash is a completely Open Source dashboard for viewing the dependency status of a Python GitHub repository." %}
 
 {% macro searchbox(form) %}
 	{% from "_formhelpers.html" import render_field %}
@@ -20,7 +21,7 @@
 	<h1>dependency-dash</h1>
 	<p>
 		<code>dependency-dash</code> is a completely Open Source dashboard for viewing
-		the dependency status of a GitHub repository.
+		the dependency status of a Python GitHub repository.
 	</p>
 	<p class="goto-label">
 		To get started, type in a repository name below:
