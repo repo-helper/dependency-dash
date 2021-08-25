@@ -1,0 +1,11 @@
+{
+  "extends": "stylelint-config-standard",
+  "ignoreFiles": ["**/*.min.css", "node_modules/"],
+  "rules": {
+    "indentation": ["tab", {}],
+    "max-empty-lines": [2, {}],
+    "selector-list-comma-newline-after": null,
+    "media-feature-name-no-unknown": null,
+    "shorthand-property-no-redundant-values": [true, {}]
+  }
+}

@@ -133,8 +133,6 @@ class SetupPyNodeVisitor(setup_py_upgrade.Visitor):
 				if kwd.arg not in {"install_requires", "extras_require"}:
 					continue
 
-				print(self._variables)
-
 				if isinstance(kwd.value, ast.Name) and kwd.value.id in self._files:
 					self.sections["options"][kwd.arg] = f'file: {self._files[kwd.value.id]}'
 				elif isinstance(kwd.value, ast.Name) and kwd.value.id in self._variables:
@@ -277,7 +275,9 @@ def parse_setup_py(content: bytes) -> Tuple[Set[ComparableRequirement], List[str
 	return requirements, invalid_lines
 
 
-def get_repo_requirements(repository: ShortRepository) -> List[Tuple[str, Set[ComparableRequirement], List[str], bool]]:
+def get_repo_requirements(
+		repository: ShortRepository
+		) -> List[Tuple[str, Set[ComparableRequirement], List[str], bool]]:
 	"""
 	Returns the requirements specified for the given repository.
 
@@ -313,7 +313,6 @@ def get_repo_requirements(repository: ShortRepository) -> List[Tuple[str, Set[Co
 
 		# sort by "order" attribute
 		for filename, file_config in sorted(files.items(), key=lambda i: i[1].get("order", 0)):
-			print(filename, file_config.get("order"))
 			counts = file_config.get("include", True)
 
 			if "format" in file_config:
@@ -353,7 +352,6 @@ def get_repo_requirements(repository: ShortRepository) -> List[Tuple[str, Set[Co
 		return output
 	else:
 		raise NotImplementedError
-
 
 
 @app.route("/github/<username>/<repository>/")
@@ -466,12 +464,17 @@ def htmx_github_user(username: str):
 		repo = GITHUB.repository(*request.args["repo"].split('/'))
 
 		try:
-			filename, requirements, invalid = get_repo_requirements(repo)
+			data = get_repo_requirements(repo)
 		except NotImplementedError:
 			return render_template("repository_status.html", status="unsupported")
 
 		try:
-			dependencies = list(get_dependency_status(requirements))
+			all_requirements = []
+			for filename, requirements, invalid, include in data:
+				if include:
+					all_requirements.extend(requirements)
+
+			dependencies = list(get_dependency_status(all_requirements))
 			status_counts = Counter(map(itemgetter(1), dependencies))
 
 			if not status_counts or set(status_counts.keys()) == {"up-to-date"}:

@@ -86,3 +86,27 @@ repos:
        - dependency_dash
 
 # Custom hooks can be added below this comment
+
+ - repo: https://github.com/awebdeveloper/pre-commit-stylelint
+   rev: 8f63da497580898a7e0ceef6bf9e72cc0af07828
+   hooks:
+    - id: stylelint
+      additional_dependencies:
+       - stylelint@13.13.1
+       - stylelint-config-standard@22.0.0
+      args:
+       - --fix
+
+ - repo: https://github.com/pre-commit/mirrors-eslint
+   rev: v7.32.0
+   hooks:
+    - id: eslint
+      args:
+       - --fix
+      additional_dependencies:
+       - eslint@7.32.0
+       - eslint-config-standard@16.0.3
+       - eslint-plugin-es@3.0.1
+       - eslint-plugin-import@2.24.0
+       - eslint-plugin-node@11.1.0
+       - eslint-plugin-promise@5.1.0

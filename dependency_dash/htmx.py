@@ -27,13 +27,18 @@ Helpers for htmx_.
 #  OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 #  OR OTHER DEALINGS IN THE SOFTWARE.
 #
+
+# stdlib
 import functools
 import traceback
 from typing import Any, Callable
 from urllib.parse import urljoin
 
+# 3rd party
 from flask import render_template
 from flask.scaffold import Scaffold
+
+__all__ = ["htmx"]
 
 
 def htmx(app: Scaffold, rule: str, **options: Any) -> Callable:
@@ -45,7 +50,7 @@ def htmx(app: Scaffold, rule: str, **options: Any) -> Callable:
 	:param options: Extra options passed to the flask ``app.route`` decorator.
 	"""
 
-	rule = urljoin("/htmx/", rule.lstrip("/"))
+	rule = urljoin("/htmx/", rule.lstrip('/'))
 
 	def decorator(f: Callable) -> Callable:
 		endpoint = options.pop("endpoint", None)
