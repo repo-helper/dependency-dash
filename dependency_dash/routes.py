@@ -27,13 +27,16 @@ Flask HTTP routes.
 #
 
 # 3rd party
+import jinja2
+import markdown
+from domdf_python_tools.compat import importlib_resources
 from flask import redirect, render_template, request  # type: ignore
 from wtforms import Form, SelectField, StringField, SubmitField  # type: ignore
 
 # this package
 from dependency_dash._app import app
 
-__all__ = ["home"]
+__all__ = ["home", "about", "render_markdown_page", "configuration"]
 
 
 class GoToForm(Form):
@@ -46,10 +49,7 @@ def home():
 	Route for displaying the homepage.
 	"""
 
-	return render_template(
-			"home.html",
-			form=GoToForm(request.form),
-			)
+	return render_template("home.html", form=GoToForm(request.form), home=True)
 
 
 @app.route("/about/")
@@ -62,6 +62,54 @@ def about():
 			"about.html",
 			form=GoToForm(request.form),
 			)
+
+
+def render_markdown_page(filename: str):
+	"""
+	Render a markdown page to HTML
+
+	:param filename:
+	"""
+
+	# Expand "macros"
+	raw = importlib_resources.read_text("dependency_dash.pages", filename)
+	text = jinja2.Template(raw).render().splitlines()
+
+	md = markdown.Markdown(extensions=["fenced_code", "codehilite"])
+
+	while not text[0].strip():
+		text.pop(0)
+	if text[0].startswith("# "):
+		title = text[0][2:].strip()
+	else:
+		title = ''
+
+	body = md.convert('\n'.join(text))
+
+	return render_template(
+			"page.html",
+			form=GoToForm(request.form),
+			body=body,
+			title=title,
+			)
+
+
+@app.route("/usage/")
+def usage():
+	"""
+	Route for displaying the "usage" page.
+	"""
+
+	return render_markdown_page("usage.md")
+
+
+@app.route("/configuration/")
+def configuration():
+	"""
+	Route for displaying the "configuration" page.
+	"""
+
+	return render_markdown_page("configuration.md")
 
 
 @app.route("/search/", methods=["POST"])

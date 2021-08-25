@@ -1,0 +1,410 @@
+/*
+From https://github.com/pygments/pygments
+Copyright (c) 2006-2021 by the respective authors
+(see https://github.com/pygments/pygments/blob/master/AUTHORS).
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+* Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright
+  notice, this list of conditions and the following disclaimer in the
+  documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+/*
+td.linenos .normal {
+	color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px;
+}
+span.linenos {
+	color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px;
+}
+td.linenos .special {
+	color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px;
+}
+span.linenos.special {
+	color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px;
+}
+*/
+
+.codehilite .hll {
+	background-color: #ffc;
+}
+
+.codehilite {
+	background: #f8f8f8;
+}
+
+/* Comment */
+.codehilite .c {
+	color: #408080;
+	font-style: italic;
+}
+
+/* Error */
+.codehilite .err {
+	border: 1px solid #f00;
+}
+
+/* Keyword */
+.codehilite .k {
+	color: #008000;
+	font-weight: bold;
+}
+
+/* Operator */
+.codehilite .o {
+	color: #666;
+}
+
+/* Comment.Hashbang */
+.codehilite .ch {
+	color: #408080;
+	font-style: italic;
+}
+
+/* Comment.Multiline */
+.codehilite .cm {
+	color: #408080;
+	font-style: italic;
+}
+
+/* Comment.Preproc */
+.codehilite .cp {
+	color: #bc7a00;
+}
+
+/* Comment.PreprocFile */
+.codehilite .cpf {
+	color: #408080;
+	font-style: italic;
+}
+
+/* Comment.Single */
+.codehilite .c1 {
+	color: #408080;
+	font-style: italic;
+}
+
+/* Comment.Special */
+.codehilite .cs {
+	color: #408080;
+	font-style: italic;
+}
+
+/* Generic.Deleted */
+.codehilite .gd {
+	color: #a00000;
+}
+
+/* Generic.Emph */
+.codehilite .ge {
+	font-style: italic;
+}
+
+/* Generic.Error */
+.codehilite .gr {
+	color: #f00;
+}
+
+/* Generic.Heading */
+.codehilite .gh {
+	color: #000080;
+	font-weight: bold;
+}
+
+/* Generic.Inserted */
+.codehilite .gi {
+	color: #00a000;
+}
+
+/* Generic.Output */
+.codehilite .go {
+	color: #888;
+}
+
+/* Generic.Prompt */
+.codehilite .gp {
+	color: #000080;
+	font-weight: bold;
+}
+
+/* Generic.Strong */
+.codehilite .gs {
+	font-weight: bold;
+}
+
+/* Generic.Subheading */
+.codehilite .gu {
+	color: #800080;
+	font-weight: bold;
+}
+
+/* Generic.Traceback */
+.codehilite .gt {
+	color: #04d;
+}
+
+/* Keyword.Constant */
+.codehilite .kc {
+	color: #008000;
+	font-weight: bold;
+}
+
+/* Keyword.Declaration */
+.codehilite .kd {
+	color: #008000;
+	font-weight: bold;
+}
+
+/* Keyword.Namespace */
+.codehilite .kn {
+	color: #008000;
+	font-weight: bold;
+}
+
+/* Keyword.Pseudo */
+.codehilite .kp {
+	color: #008000;
+}
+
+/* Keyword.Reserved */
+.codehilite .kr {
+	color: #008000;
+	font-weight: bold;
+}
+
+/* Keyword.Type */
+.codehilite .kt {
+	color: #b00040;
+}
+
+/* Literal.Number */
+.codehilite .m {
+	color: #666;
+}
+
+/* Literal.String */
+.codehilite .s {
+	color: #ba2121;
+}
+
+/* Name.Attribute */
+.codehilite .na {
+	color: #7d9029;
+}
+
+/* Name.Builtin */
+.codehilite .nb {
+	color: #008000;
+}
+
+/* Name.Class */
+.codehilite .nc {
+	color: #00f;
+	font-weight: bold;
+}
+
+/* Name.Constant */
+.codehilite .no {
+	color: #800;
+}
+
+/* Name.Decorator */
+.codehilite .nd {
+	color: #a2f;
+}
+
+/* Name.Entity */
+.codehilite .ni {
+	color: #999;
+	font-weight: bold;
+}
+
+/* Name.Exception */
+.codehilite .ne {
+	color: #d2413a;
+	font-weight: bold;
+}
+
+/* Name.Function */
+.codehilite .nf {
+	color: #00f;
+}
+
+/* Name.Label */
+.codehilite .nl {
+	color: #a0a000;
+}
+
+/* Name.Namespace */
+.codehilite .nn {
+	color: #00f;
+	font-weight: bold;
+}
+
+/* Name.Tag */
+.codehilite .nt {
+	color: #008000;
+	font-weight: bold;
+}
+
+/* Name.Variable */
+.codehilite .nv {
+	color: #19177c;
+}
+
+/* Operator.Word */
+.codehilite .ow {
+	color: #a2f;
+	font-weight: bold;
+}
+
+/* Text.Whitespace */
+.codehilite .w {
+	color: #bbb;
+}
+
+/* Literal.Number.Bin */
+.codehilite .mb {
+	color: #666;
+}
+
+/* Literal.Number.Float */
+.codehilite .mf {
+	color: #666;
+}
+
+/* Literal.Number.Hex */
+.codehilite .mh {
+	color: #666;
+}
+
+/* Literal.Number.Integer */
+.codehilite .mi {
+	color: #666;
+}
+
+/* Literal.Number.Oct */
+.codehilite .mo {
+	color: #666;
+}
+
+/* Literal.String.Affix */
+.codehilite .sa {
+	color: #ba2121;
+}
+
+/* Literal.String.Backtick */
+.codehilite .sb {
+	color: #ba2121;
+}
+
+/* Literal.String.Char */
+.codehilite .sc {
+	color: #ba2121;
+}
+
+/* Literal.String.Delimiter */
+.codehilite .dl {
+	color: #ba2121;
+}
+
+/* Literal.String.Doc */
+.codehilite .sd {
+	color: #ba2121;
+	font-style: italic;
+}
+
+/* Literal.String.Double */
+.codehilite .s2 {
+	color: #ba2121;
+}
+
+/* Literal.String.Escape */
+.codehilite .se {
+	color: #b62;
+	font-weight: bold;
+}
+
+/* Literal.String.Heredoc */
+.codehilite .sh {
+	color: #ba2121;
+}
+
+/* Literal.String.Interpol */
+.codehilite .si {
+	color: #b68;
+	font-weight: bold;
+}
+
+/* Literal.String.Other */
+.codehilite .sx {
+	color: #008000;
+}
+
+/* Literal.String.Regex */
+.codehilite .sr {
+	color: #b68;
+}
+
+/* Literal.String.Single */
+.codehilite .s1 {
+	color: #ba2121;
+}
+
+/* Literal.String.Symbol */
+.codehilite .ss {
+	color: #19177c;
+}
+
+/* Name.Builtin.Pseudo */
+.codehilite .bp {
+	color: #008000;
+}
+
+/* Name.Function.Magic */
+.codehilite .fm {
+	color: #00f;
+}
+
+/* Name.Variable.Class */
+.codehilite .vc {
+	color: #19177c;
+}
+
+/* Name.Variable.Global */
+.codehilite .vg {
+	color: #19177c;
+}
+
+/* Name.Variable.Instance */
+.codehilite .vi {
+	color: #19177c;
+}
+
+/* Name.Variable.Magic */
+.codehilite .vm {
+	color: #19177c;
+}
+
+/* Literal.Number.Integer.Long */
+.codehilite .il {
+	color: #666;
+}
