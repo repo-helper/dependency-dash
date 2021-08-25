@@ -341,3 +341,7 @@ html {
 	/* Stop the horizontal jump */
 	overflow-y: scroll;
 }
+
+.vspace-15px {
+	padding-top: 15px;
+}

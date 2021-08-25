@@ -52,23 +52,12 @@ def home():
 	return render_template("home.html", form=GoToForm(request.form), home=True)
 
 
-@app.route("/about/")
-def about():
-	"""
-	Route for displaying the "about" page.
-	"""
-
-	return render_template(
-			"about.html",
-			form=GoToForm(request.form),
-			)
-
-
-def render_markdown_page(filename: str):
+def render_markdown_page(filename: str, template: str = "page.html"):
 	"""
 	Render a markdown page to HTML
 
 	:param filename:
+	:param template:
 	"""
 
 	# Expand "macros"
@@ -87,11 +76,20 @@ def render_markdown_page(filename: str):
 	body = md.convert('\n'.join(text))
 
 	return render_template(
-			"page.html",
+			template,
 			form=GoToForm(request.form),
 			body=body,
 			title=title,
 			)
+
+
+@app.route("/about/")
+def about():
+	"""
+	Route for displaying the "about" page.
+	"""
+
+	return render_markdown_page("about.md", "about.html")
 
 
 @app.route("/usage/")

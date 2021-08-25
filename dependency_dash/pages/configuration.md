@@ -1,4 +1,5 @@
 {% set title = "Configuration" %}
+{% set description = "dependency-dash doesn't require any configuration for basic usage. However, it can be customised to check requirements in additional/different files." %}
 
 {% macro pep(number) -%}
     [PEP {{ number }}](https://www.python.org/dev/peps/pep-{{ number }}/)
