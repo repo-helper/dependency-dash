@@ -266,7 +266,8 @@ def parse_setup_py(content: bytes) -> Tuple[Set[ComparableRequirement], List[str
 
 
 def get_repo_requirements(
-		repository: ShortRepository
+		repository_name: str,
+		default_branch: str = "master",
 		) -> List[Tuple[str, Set[ComparableRequirement], List[str], bool]]:
 	"""
 	Returns the requirements specified for the given repository.
@@ -278,7 +279,8 @@ def get_repo_requirements(
 	* ``setup.cfg``
 	* ``setup.py``
 
-	:param repository:
+	:param repository_name: The repository's full name.
+	:param default_branch: The repository's default branch name.
 
 	:returns: An iterator of tuples containing:
 
@@ -289,7 +291,7 @@ def get_repo_requirements(
 	"""
 
 	try:
-		files = get_our_config(repository.full_name, repository.default_branch)
+		files = get_our_config(repository_name, default_branch)
 	except (requests.HTTPError, KeyError):
 		lookup_map = [
 				(parse_requirements_txt, "requirements.txt", True),
@@ -331,7 +333,7 @@ def get_repo_requirements(
 	for function, filename, counts in lookup_map:
 		try:
 			requirements, invalid_lines = get_requirements_from_github(
-				repository.full_name, repository.default_branch, file=filename, parse_func=function
+				repository_name, default_branch, file=filename, parse_func=function,
 				)
 		except (requests.HTTPError, SkipFile):
 			continue
@@ -355,11 +357,20 @@ def github_project(username: str, repository: str):
 
 	project_name = f"{username}/{repository}"
 
+	try:
+		repo = GITHUB.repository(username, repository)
+	except github3.exceptions.NotFoundError:
+		return render_template(
+			"project_404.html",
+			project_name=project_name,
+			description=f"Dependency status for https://github.com/{project_name}",
+			), 404
+
 	return render_template(
 			"project.html",
-			project_name=project_name,
-			data_url=f"/htmx/github/{username}/{repository}",
-			description=f"Dependency status for https://github.com/{project_name}",
+			project_name=repo.full_name,
+			data_url=f"/htmx/github/{repo.full_name}/{repo.default_branch}",
+			description=f"Dependency status for https://github.com/{repo.full_name}",
 			)
 
 
@@ -370,24 +381,20 @@ def _normalize(name: str) -> str:
 	return _normalize_pattern.sub('-', name)
 
 
-@htmx(app, "/github/<username>/<repository>/")
-def htmx_github_project(username: str, repository: str):
+@htmx(app, "/github/<username>/<repository>/<branch>/")
+def htmx_github_project(username: str, repository: str, branch: str):
 	"""
 	HTMX callback for obtaining the requirements table for the given repository.
 
 	:param username: The user or organization that owns the repository.
 	:param repository: The repository name.
+	:param branch: The repository's default branch name.
 	"""
 
 	try:
-		repo = GITHUB.repository(username, repository)
-	except github3.exceptions.NotFoundError:
-		return "<h6>Repository not found.</h6>", 404
-
-	try:
-		data = get_repo_requirements(repo)
+		data = get_repo_requirements(f"{username}/{repository}", branch)
 	except NotImplementedError:
-		return render_template("no_supported_files.html"), 404
+		return render_template("no_supported_files.html")
 	else:
 
 		# TODO: list invalid requirements
@@ -418,7 +425,7 @@ def badge_github_project(username: str, repository: str):
 		return "Repository not found.", 404
 
 	try:
-		data = get_repo_requirements(repo)
+		data = get_repo_requirements(repo.full_name, repo.default_branch)
 	except NotImplementedError:
 		return render_template("no_supported_files.html"), 404
 	else:
@@ -457,7 +464,7 @@ def htmx_github_user(username: str):
 		repo = GITHUB.repository(*request.args["repo"].split('/'))
 
 		try:
-			data = get_repo_requirements(repo)
+			data = get_repo_requirements(repo.full_name, repo.default_branch)
 		except NotImplementedError:
 			return render_template("repository_status.html", status="unsupported")
 

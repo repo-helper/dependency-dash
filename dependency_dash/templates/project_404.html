@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+{% set title = project_name %}
+{% set owner, repo_name = project_name.split("/", 1) %}
+
+{% block extrahead %}
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/fontawesome.min.css') }}">
+{% endblock %}
+
+{% block content %}
+	<div class="d-flex flex-row align-items-baseline flex-wrap">
+		<div class="p-2">
+			<h3 class="project-name">
+				<a href="/github/{{ owner }}">{{ owner }}</a>/<a href="#">{{ repo_name }}</a>
+			</h3>
+		</div>
+		<div class="p-2 repo-link">
+			<a href="https://github.com/{{ project_name }}" title="View on GitHub" class="repo-link">
+				<i class="fab fa-github"></i>
+			</a>
+		</div>
+		<div class="p-2 ml-auto" id="badge"></div>
+	</div>
+
+	<p>Repository not found.</p>
+{% endblock content %}

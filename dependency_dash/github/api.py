@@ -94,7 +94,7 @@ class GitHubProjectAPI(Resource):
 		from dependency_dash.github import get_repo_requirements
 
 		try:
-			data = get_repo_requirements(repo)
+			data = get_repo_requirements(repo.full_name, repo.default_branch)
 		except NotImplementedError:
 			return error404("No supported files in repository")
 		else:
