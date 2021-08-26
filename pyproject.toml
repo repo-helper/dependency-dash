@@ -37,14 +37,17 @@ platforms = [ "Linux", "macOS",]
 license-key = "MIT"
 package = "dependency_dash"
 additional-files = [
-    "recursive-include dependency_dash/static *.css",
-    "recursive-include dependency_dash/static *.woff",
-    "recursive-include dependency_dash/static *.woff2",
-    "recursive-include dependency_dash/static *.eot",
-    "recursive-include dependency_dash/static *.ttf",
-    "recursive-include dependency_dash/static *.svg",
+    "recursive-include dependency_dash/static/css *.css",
+    "recursive-include dependency_dash/static/css *.css.map",
+    "recursive-include dependency_dash/static/js *.js",
+    "recursive-include dependency_dash/static/webfonts *.woff",
+    "recursive-include dependency_dash/static/webfonts *.woff2",
+    "recursive-include dependency_dash/static/webfonts *.eot",
+    "recursive-include dependency_dash/static/webfonts *.ttf",
     "recursive-include dependency_dash/static *.jpg",
     "recursive-include dependency_dash/static *.webp",
+    "recursive-include dependency_dash/static *.svg",
+    "recursive-include dependency_dash/static *.png",
     "recursive-include dependency_dash/templates *.html",
     "recursive-include dependency_dash/pages *.md",
 ]

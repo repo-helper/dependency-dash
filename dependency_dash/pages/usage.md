@@ -18,7 +18,7 @@ The repository view shows the project's dependencies, grouped by file.
 The image below gives an overview of the various elements of the repository page.
 
 
-{{ linked_image("overview of the repository page", "/static/usage_repository.png") }}
+{{ linked_image("overview of the repository page", "/static/img/usage_repository.png") }}
 
 
 Clicking the filename bar will collapse the table for that file, which may make navigation easier on mobile.
@@ -27,7 +27,7 @@ Clicking the filename bar will collapse the table for that file, which may make 
 
 The user page has a simpler view, showing all repositories belonging to the user and their overall status:
 
-{{ linked_image("overview of the user page", "/static/usage_user.png") }}
+{{ linked_image("overview of the user page", "/static/img/usage_user.png") }}
 
 -----
 

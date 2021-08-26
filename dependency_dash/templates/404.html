@@ -1,5 +1,6 @@
 {% extends "layout.html" %}
-{% set description = "dependency-dash is a completely Open Source dashboard for viewing the dependency status of a Python GitHub repository." %}
+{% set title="404" %}
+
 
 {% macro searchbox(form) %}
 	{% from "_formhelpers.html" import render_field %}
@@ -18,13 +19,14 @@
 
 
 {% block content %}
-	<h1>dependency-dash</h1>
-	<p>
-		<code>dependency-dash</code> is a completely Open Source dashboard for viewing
-		the dependency status of a Python GitHub repository.
-	</p>
-	<p class="goto-label">
-		To get started, type a repository name below:
+	<h1>404</h1>
+
+	<p>We looked everywhere but we couldn't find that page!</p>
+
+	<img class="mx-auto d-block" src="/static/img/not-found.webp" alt="magnifying glass" height="256">
+
+		<p class="goto-label">
+			Try using the links in the top bar to find what you are looking for, or type a repository name below.
 	</p>
 
 	{{ searchbox(form) }}

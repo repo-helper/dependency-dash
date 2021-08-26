@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 #
-#  htmx.py
+#  api.py
 """
-Helpers for htmx_.
-
-.. _htmx: https://htmx.org/
+Common API Models.
 """
 #
 #  Copyright © 2021 Dominic Davis-Foster <dominic@davis-foster.co.uk>
@@ -28,42 +26,36 @@ Helpers for htmx_.
 #  OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-# stdlib
-import functools
-import traceback
-from typing import Any, Callable
-from urllib.parse import urljoin
-
 # 3rd party
-from flask import Flask, render_template  # type: ignore
+import setup_py_upgrade  # type: ignore
+from flask import render_template, request  # type: ignore
+from flask_restx import fields  # type: ignore
 
-__all__ = ["htmx"]
+# this package
+from dependency_dash._app import api
 
+__all__ = [
+		"project_urls_model",
+		"requirement_data_model",
+		]
 
-def htmx(app: "Flask", rule: str, **options: Any) -> Callable:
-	"""
-	Construct a flask route at ``/htmx/<rule>`` for use with htmx_.
+project_urls_model = api.model(
+		"Project_URLs", {
+				'*': fields.String(example="https://github.com/python-coincidence/coverage_pyver_pragma"),
+				}
+		)
 
-	:param app:
-	:param rule: The URL rule string.
-	:param options: Extra options passed to the flask ``app.route`` decorator.
-	"""  # noqa: RST306
-
-	rule = urljoin("/htmx/", rule.lstrip('/'))
-
-	def decorator(f: Callable) -> Callable:
-		endpoint = options.pop("endpoint", None)
-
-		@functools.wraps(f)
-		def rule_func(*args, **kwargs):
-			try:
-				return f(*args, **kwargs)
-			except Exception as e:
-				print(f"Exception in route {rule}:")
-				traceback.print_exc()
-				return render_template("htmx_exception.html", exception=e)
-
-		app.add_url_rule(rule, endpoint, rule_func, **options)
-		return f
-
-	return decorator
+requirement_data_model = api.model(
+		"Requirement_Data",
+		{
+				"requirement": fields.String(example='importlib-metadata>=3.6.0; python_version < "3.9"'),
+				"status": fields.String(example="up-to-date"),
+				"name": fields.String(example="importlib-metadata"),
+				"home_page": fields.Url(example="https://github.com/python/importlib_metadata"),
+				"license": fields.String(example="MIT"),
+				"package_url": fields.Url(example="https://pypi.org/project/importlib-metadata/"),
+				"project_urls": fields.Nested(project_urls_model),
+				"all_versions": fields.List(fields.String(example="1.2.3")),
+				"current_version": fields.String(example="4.6.4"),
+				}
+		)

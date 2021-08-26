@@ -28,7 +28,7 @@ A fully Open Source dependency dashboard.
 
 # this package
 from dependency_dash import github, routes
-from dependency_dash._app import app
+from dependency_dash._app import api, app
 
 __author__: str = "Dominic Davis-Foster"
 __copyright__: str = "2021 Dominic Davis-Foster"
@@ -37,3 +37,5 @@ __version__: str = "0.0.0"
 __email__: str = "dominic@davis-foster.co.uk"
 
 __all__ = ["app"]
+
+api.add_namespace(github.api.api)

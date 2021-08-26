@@ -85,50 +85,53 @@
 			</div>
 		</nav>
 	</header>
-	<main role="main" class="container flex-grow-1 w-100">
-		<div class="row">
-			{% if not show_sidebar %}<div class="col-md-1"></div>{% endif %}
-			{% if show_sidebar %}<div class="col-md-8">{% else %}<div class="col-md-10">{% endif %}
-			{% block content %}{% endblock %}
-			</div>
-			{% if show_sidebar %}
-				<div class="col-md-4">
-					<div class="content-section">
-						<h3>Our Sidebar</h3>
-						<p class='text-muted'>You can put any information here you'd like.
-							<ul class="list-group">
-								<li class="list-group-item list-group-item-light">Latest Posts</li>
-								<li class="list-group-item list-group-item-light">Announcements</li>
-								<li class="list-group-item list-group-item-light">Calendars</li>
-								<li class="list-group-item list-group-item-light">etc</li>
-							</ul>
-						</p>
-					</div>
+
+	{% block main %}
+		<main role="main" class="container flex-grow-1 w-100">
+			<div class="row">
+				{% if not show_sidebar %}<div class="col-md-1"></div>{% endif %}
+				{% if show_sidebar %}<div class="col-md-8">{% else %}<div class="col-md-10">{% endif %}
+				{% block content %}{% endblock %}
 				</div>
-			{% endif %}
+				{% if show_sidebar %}
+					<div class="col-md-4">
+						<div class="content-section">
+							<h3>Our Sidebar</h3>
+							<p class='text-muted'>You can put any information here you'd like.
+								<ul class="list-group">
+									<li class="list-group-item list-group-item-light">Latest Posts</li>
+									<li class="list-group-item list-group-item-light">Announcements</li>
+									<li class="list-group-item list-group-item-light">Calendars</li>
+									<li class="list-group-item list-group-item-light">etc</li>
+								</ul>
+							</p>
+						</div>
+					</div>
+				{% endif %}
+				</div>
+		</main>
+	{% endblock %}
+
+	{% block footer %}
+		<!-- Footer -->
+		<footer class="page-footer font-small blue pt-4">
+			<!-- Footer Links -->
+			<div class="container-fluid text-center">
+				Powered by <a href="https://github.com/repo-helper/dependency-dash">dependency-dash</a>
 			</div>
-	</main>
-
-	<!-- Footer -->
-	<footer class="page-footer font-small blue pt-4">
-		<!-- Footer Links -->
-		<div class="container-fluid text-center">
-			Powered by <a href="https://github.com/repo-helper/dependency-dash">dependency-dash</a>
-		</div>
-	</footer>
-
-	<!-- Optional JavaScript -->
-	<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-{#		<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>#}
-	<script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-
-	<script src="https://unpkg.com/htmx.org@1.5.0" integrity="sha384-oGA+prIp5Vchu6we2YkI51UtVzN9Jpx2Z7PnR1I78PnZlN8LkrCT4lqqqmDkyrvI" crossorigin="anonymous"></script>
-
-	<script src="{{ url_for('static', filename='js/dash.js') }}"></script>
+		</footer>
+	{% endblock %}
 
 	{% block scripts %}
+		<!-- Optional JavaScript -->
+		<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+		<script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+		<script src="https://unpkg.com/htmx.org@1.5.0" integrity="sha384-oGA+prIp5Vchu6we2YkI51UtVzN9Jpx2Z7PnR1I78PnZlN8LkrCT4lqqqmDkyrvI" crossorigin="anonymous"></script>
+
+		<script src="{{ url_for('static', filename='js/dash.js') }}"></script>
 	{% endblock %}
 
 </body>

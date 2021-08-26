@@ -220,7 +220,8 @@ a.docs-link:visited i.fa-book {
 	font-size: 0.8rem;
 }
 
-pre {
+/* Exclude version number on swagger docs page */
+pre:not(.version) {
 	display: block;
 	padding: 9.5px;
 	margin: 0 0 10px;

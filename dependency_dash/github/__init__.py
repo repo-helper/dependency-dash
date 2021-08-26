@@ -55,6 +55,8 @@ from shippinglabel.requirements import ComparableRequirement, parse_requirements
 
 # this package
 from dependency_dash._app import app
+from dependency_dash.github._env import GITHUB
+from dependency_dash.github.api import GitHubProjectAPI
 from dependency_dash.htmx import htmx
 from dependency_dash.pypi import format_project_links, get_dependency_status, make_badge
 
@@ -74,18 +76,6 @@ __all__ = [
 		"parse_setup_py"
 		]
 
-try:
-	# 3rd party
-	from dotenv import load_dotenv
-except ImportError:
-	pass
-else:
-	load_dotenv()  # take environment variables from .env.
-
-if "GITHUB_TOKEN" not in os.environ:
-	raise ValueError("'GITHUB_TOKEN' environment variable not found.")
-
-GITHUB = github3.GitHub(token=os.getenv("GITHUB_TOKEN"))
 CACHE_DIR = PathPlus(platformdirs.user_cache_dir("dependency_dash")) / "github"
 
 
@@ -392,12 +382,12 @@ def htmx_github_project(username: str, repository: str):
 	try:
 		repo = GITHUB.repository(username, repository)
 	except github3.exceptions.NotFoundError:
-		return "<h6>Repository not found.</h6>"
+		return "<h6>Repository not found.</h6>", 404
 
 	try:
 		data = get_repo_requirements(repo)
 	except NotImplementedError:
-		return render_template("no_supported_files.html")
+		return render_template("no_supported_files.html"), 404
 	else:
 
 		# TODO: list invalid requirements
@@ -432,7 +422,7 @@ def badge_github_project(username: str, repository: str):
 	except NotImplementedError:
 		return render_template("no_supported_files.html"), 404
 	else:
-		all_requirements = []
+		all_requirements: List[ComparableRequirement] = []
 		for filename, requirements, invalid, include in data:
 			if include:
 				all_requirements.extend(requirements)
@@ -455,7 +445,7 @@ def github_user(username: str):
 			)
 
 
-@app.route("/htmx/github/<username>/")
+@htmx(app, "/github/<username>/")
 def htmx_github_user(username: str):
 	"""
 	HTMX callback for obtaining the projects table for the given user.
@@ -472,7 +462,7 @@ def htmx_github_user(username: str):
 			return render_template("repository_status.html", status="unsupported")
 
 		try:
-			all_requirements = []
+			all_requirements: List[ComparableRequirement] = []
 			for filename, requirements, invalid, include in data:
 				if include:
 					all_requirements.extend(requirements)

@@ -36,17 +36,30 @@ from typing import Optional
 # 3rd party
 from domdf_python_tools.paths import PathPlus
 from flask import Flask, Response, redirect, request, url_for  # type: ignore
+from flask_restx import Api  # type: ignore
 
-__all__ = ["inject_constants"]
+__all__ = ["app", "api"]
+
+try:
+	# 3rd party
+	from dotenv import load_dotenv
+except ImportError:
+	pass
+else:
+	load_dotenv()  # take environment variables from .env.
 
 app = Flask("dependency_dash", template_folder=(PathPlus(__file__).parent / "templates").as_posix())
+api = Api(app, prefix="/api", doc="/api")
+app.config["SWAGGER_UI_DOC_EXPANSION"] = "full"  # change to list when there's another endpoint
+app.config["JSON_SORT_KEYS"] = False
+app.config["DD_ROOT_URL"] = os.getenv("DD_ROOT_URL", "http://localhost:5000")
 
 
 @app.context_processor
 def inject_constants():
 	return {
 			"show_sidebar": False,
-			"root_url": os.getenv("DD_ROOT_URL", "http://localhost:5000"),
+			"root_url": app.config["DD_ROOT_URL"],
 			"list": list,
 			}
 
@@ -75,7 +88,7 @@ def https_redirect() -> Optional[Response]:
 
 
 if "ON_HEROKU" in os.environ:
-	app.before_request(https_redirect)  # type: ignore
+	app.before_request(https_redirect)
 
 
 @app.after_request

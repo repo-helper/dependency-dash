@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 #
-#  htmx.py
+#  _env.py
 """
-Helpers for htmx_.
-
-.. _htmx: https://htmx.org/
+Environment variable helper.
 """
 #
 #  Copyright © 2021 Dominic Davis-Foster <dominic@davis-foster.co.uk>
@@ -29,41 +27,25 @@ Helpers for htmx_.
 #
 
 # stdlib
-import functools
-import traceback
-from typing import Any, Callable
-from urllib.parse import urljoin
+import os
 
 # 3rd party
-from flask import Flask, render_template  # type: ignore
+import github3.repos.contents
+import platformdirs
+import setup_py_upgrade  # type: ignore
+from domdf_python_tools.paths import PathPlus
+from flask import render_template, request  # type: ignore
 
-__all__ = ["htmx"]
+try:
+	# 3rd party
+	from dotenv import load_dotenv
+except ImportError:
+	pass
+else:
+	load_dotenv()  # take environment variables from .env.
 
+if "GITHUB_TOKEN" not in os.environ:
+	raise ValueError("'GITHUB_TOKEN' environment variable not found.")
 
-def htmx(app: "Flask", rule: str, **options: Any) -> Callable:
-	"""
-	Construct a flask route at ``/htmx/<rule>`` for use with htmx_.
-
-	:param app:
-	:param rule: The URL rule string.
-	:param options: Extra options passed to the flask ``app.route`` decorator.
-	"""  # noqa: RST306
-
-	rule = urljoin("/htmx/", rule.lstrip('/'))
-
-	def decorator(f: Callable) -> Callable:
-		endpoint = options.pop("endpoint", None)
-
-		@functools.wraps(f)
-		def rule_func(*args, **kwargs):
-			try:
-				return f(*args, **kwargs)
-			except Exception as e:
-				print(f"Exception in route {rule}:")
-				traceback.print_exc()
-				return render_template("htmx_exception.html", exception=e)
-
-		app.add_url_rule(rule, endpoint, rule_func, **options)
-		return f
-
-	return decorator
+GITHUB = github3.GitHub(token=os.getenv("GITHUB_TOKEN"))
+CACHE_DIR = PathPlus(platformdirs.user_cache_dir("dependency_dash")) / "github"

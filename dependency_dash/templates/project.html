@@ -47,11 +47,12 @@
 
 	<div class="dependency-table table-responsive" hx-get="{{ data_url }}" hx-trigger="revealed" hx-swap="innerHTML">
 		<table class="table table-sm"></table>
-		<img class="htmx-indicator centered" width="60" src="/static/bars.svg">
+		<img class="htmx-indicator centered" width="60" src="/static/img/bars.svg">
 	</div>
 {% endblock content %}
 
 {% block scripts %}
+	{{ super() }}
 	<script src="https://unpkg.com/clipboard@2/dist/clipboard.min.js"></script>
 	<script>new ClipboardJS('.badge-urls .btn');</script>
 {% endblock %}

@@ -27,7 +27,7 @@ Flask HTTP routes.
 #
 
 # 3rd party
-import jinja2
+import jinja2  # type: ignore
 import markdown
 from domdf_python_tools.compat import importlib_resources
 from flask import redirect, render_template, request  # type: ignore
@@ -54,7 +54,7 @@ def home():
 
 def render_markdown_page(filename: str, template: str = "page.html"):
 	"""
-	Render a markdown page to HTML
+	Render a markdown page to HTML.
 
 	:param filename:
 	:param template:
@@ -64,7 +64,7 @@ def render_markdown_page(filename: str, template: str = "page.html"):
 	raw = importlib_resources.read_text("dependency_dash.pages", filename)
 	text = jinja2.Template(raw).render().splitlines()
 
-	md = markdown.Markdown(extensions=["fenced_code", "codehilite"])
+	md = markdown.Markdown(extensions=["fenced_code", "codehilite", "toc"])
 
 	while not text[0].strip():
 		text.pop(0)
@@ -114,3 +114,25 @@ def configuration():
 @app.route("/search", methods=["POST"])
 def search():
 	return redirect(f"/github/{GoToForm(request.form).data['search']}", code=302)
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+	"""
+	Route for HTTP 404 errors.
+
+	:param e:
+	"""
+
+	return render_template("404.html", form=GoToForm(request.form)), 404
+
+
+@app.errorhandler(500)
+def page_not_found(e):
+	"""
+	Route for HTTP 500 errors.
+
+	:param e:
+	"""
+
+	return render_template("500.html", form=GoToForm(request.form)), 500
