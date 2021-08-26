@@ -35,6 +35,7 @@ known_third_party = [
     "dom_toml",
     "domdf_python_tools",
     "flask",
+    "flask_restx",
     "github3_py",
     "gunicorn",
     "jinja2",
