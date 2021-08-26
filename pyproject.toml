@@ -63,7 +63,7 @@ warn_unused_ignores = true
 no_implicit_optional = true
 
 [tool.dep_checker]
-allowed_unused = [ "gunicorn", "jinja2",]
+allowed_unused = [ "gunicorn", "pygments",]
 
 [tool.dep_checker.name_mapping]
 github3-py = "github3"
