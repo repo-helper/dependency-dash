@@ -36,7 +36,16 @@ from wtforms import Form, SelectField, StringField, SubmitField  # type: ignore
 # this package
 from dependency_dash._app import app
 
-__all__ = ["home", "about", "render_markdown_page", "configuration"]
+__all__ = [
+		"home",
+		"render_markdown_page",
+		"about",
+		"usage",
+		"configuration",
+		"search",
+		"page_not_found",
+		"server_error",
+		]
 
 
 class GoToForm(Form):
@@ -128,7 +137,7 @@ def page_not_found(e):
 
 
 @app.errorhandler(500)
-def page_not_found(e):
+def server_error(e):
 	"""
 	Route for HTTP 500 errors.
 
