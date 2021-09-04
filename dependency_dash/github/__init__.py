@@ -28,17 +28,19 @@ GitHub backend.
 
 # stdlib
 import ast
-import os
+import hashlib
 import re
 from collections import Counter
 from configparser import ConfigParser
 from contextlib import suppress
-from datetime import datetime
+from datetime import datetime, timedelta
+from http import HTTPStatus
 from operator import itemgetter
 from typing import Any, Callable, Dict, Iterator, List, Set, Tuple, Union
 
 # 3rd party
 import dom_toml
+import flask
 import github3
 import github3.repos.contents
 import platformdirs
@@ -434,7 +436,21 @@ def badge_github_project(username: str, repository: str):
 			if include:
 				all_requirements.extend(requirements)
 
-		return make_badge(get_dependency_status(all_requirements))
+		badge_svg = make_badge(get_dependency_status(all_requirements))
+		etag = hashlib.sha256(badge_svg.encode("UTF-8")).hexdigest()
+
+		if request.headers.get("If-None-Match") == etag:
+			resp = flask.Response(status=HTTPStatus.NOT_MODIFIED)
+		else:
+			resp = flask.Response(
+					make_badge(get_dependency_status(all_requirements)),
+					content_type="image/svg+xml;charset=utf-8"
+					)
+
+		resp.headers["ETag"] = etag
+		resp.headers["Cache-Control"] = "max-age=30"
+		resp.headers["Expires"] = (datetime.utcnow() + timedelta(seconds=30)).strftime("%a, %d %b %Y %H:%M:%S GMT")
+		return resp
 
 
 @app.route("/github/<username>/")
