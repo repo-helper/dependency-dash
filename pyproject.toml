@@ -46,6 +46,7 @@ additional-files = [
     "recursive-include dependency_dash/static/webfonts *.ttf",
     "recursive-include dependency_dash/static *.jpg",
     "recursive-include dependency_dash/static *.webp",
+    "recursive-include dependency_dash/static *.avif",
     "recursive-include dependency_dash/static *.svg",
     "recursive-include dependency_dash/static *.png",
     "recursive-include dependency_dash/templates *.html",
