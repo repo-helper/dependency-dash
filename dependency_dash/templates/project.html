@@ -29,17 +29,17 @@
 				{% from "_clipboard_helper.html" import clipboard_for %}
 				{{ clipboard_for("badge-rst") }}
 				<p>reStructuredText:</p>
-				<pre id="badge-rst">.. image:: {{ root_url }}/badge/github/{{ project_name }}
+				<pre id="badge-rst">.. image:: {{ root_url }}/github/{{ project_name }}/badge.svg
     :target: {{ root_url }}/github/{{ project_name }}
     :alt: Requirements Status</pre>
 
 				{{ clipboard_for("badge-md") }}
 				<p>Markdown:</p>
-				<pre id="badge-md">[![Requirements Status]({{ root_url }}/badge/github/{{ project_name }})]({{ root_url }}/github/{{ project_name }})</pre>
+				<pre id="badge-md">[![Requirements Status]({{ root_url }}/github/{{ project_name }}/badge.svg)]({{ root_url }}/github/{{ project_name }})</pre>
 
 				{{ clipboard_for("badge-html") }}
 				<p>HTML:</p>
-				<pre id="badge-html">&lt;a href="{{ root_url }}/github/{{ project_name }}"&gt;&lt;img src="{{ root_url }}/badge/github/{{ project_name }}" alt="Requirements Status" /&gt;&lt;/a&gt;</pre>
+				<pre id="badge-html">&lt;a href="{{ root_url }}/github/{{ project_name }}"&gt;&lt;img src="{{ root_url }}/github/{{ project_name }}/badge.svg" alt="Requirements Status" /&gt;&lt;/a&gt;</pre>
 
 			</div>
   	</div>

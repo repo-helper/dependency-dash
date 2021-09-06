@@ -410,7 +410,7 @@ def htmx_github_project(username: str, repository: str, branch: str):
 				)
 
 
-@app.route("/badge/github/<username>/<repository>/")
+@app.route("/github/<username>/<repository>/badge.svg")
 def badge_github_project(username: str, repository: str):
 	"""
 	Route for displaying the status badge for the given project.
