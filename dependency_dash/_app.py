@@ -38,6 +38,7 @@ from typing import Optional
 from domdf_python_tools.paths import PathPlus
 from flask import Flask, Response, redirect, request, url_for  # type: ignore
 from flask_restx import Api  # type: ignore
+from wtforms import Form, StringField
 
 __all__ = ["app", "api"]
 
@@ -56,12 +57,17 @@ app.config["JSON_SORT_KEYS"] = False
 app.config["DD_ROOT_URL"] = os.getenv("DD_ROOT_URL", "http://localhost:5000")
 
 
+class GoToForm(Form):
+	search = StringField('')
+
+
 @app.context_processor
 def inject_constants():
 	return {
 			"show_sidebar": False,
 			"root_url": app.config["DD_ROOT_URL"],
 			"list": list,
+			"form": GoToForm(request.form),
 			}
 
 

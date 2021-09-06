@@ -34,7 +34,7 @@ from flask import redirect, render_template, request  # type: ignore
 from wtforms import Form, SelectField, StringField, SubmitField  # type: ignore
 
 # this package
-from dependency_dash._app import app
+from dependency_dash._app import GoToForm, app
 
 __all__ = [
 		"home",
@@ -46,10 +46,6 @@ __all__ = [
 		"page_not_found",
 		"server_error",
 		]
-
-
-class GoToForm(Form):
-	search = StringField('')
 
 
 @app.route('/')
@@ -133,7 +129,7 @@ def page_not_found(e):
 	:param e:
 	"""
 
-	return render_template("404.html", form=GoToForm(request.form)), 404
+	return render_template("404.html"), 404
 
 
 @app.errorhandler(500)
@@ -144,4 +140,4 @@ def server_error(e):
 	:param e:
 	"""
 
-	return render_template("500.html", form=GoToForm(request.form)), 500
+	return render_template("500.html"), 500
