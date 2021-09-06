@@ -40,14 +40,13 @@ from typing import Any, Callable, Dict, Iterator, List, Set, Tuple, Union
 
 # 3rd party
 import dom_toml
-import flask
 import github3
 import github3.repos.contents
 import platformdirs
 import requests
 import setup_py_upgrade  # type: ignore
 from domdf_python_tools.paths import PathPlus
-from flask import render_template, request  # type: ignore
+from flask import render_template, request, Response  # type: ignore
 from github3.orgs import Organization
 from github3.repos import ShortRepository
 from github3.users import User
@@ -440,9 +439,9 @@ def badge_github_project(username: str, repository: str):
 		etag = hashlib.sha256(badge_svg.encode("UTF-8")).hexdigest()
 
 		if request.headers.get("If-None-Match") == etag:
-			resp = flask.Response(status=HTTPStatus.NOT_MODIFIED)
+			resp = Response(status=HTTPStatus.NOT_MODIFIED)
 		else:
-			resp = flask.Response(
+			resp = Response(
 					make_badge(get_dependency_status(all_requirements)),
 					content_type="image/svg+xml;charset=utf-8"
 					)

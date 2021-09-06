@@ -65,7 +65,7 @@ class _ImgFluidInlineProcessor(ImageInlineProcessor):
 
 	def handleMatch(self, m, data):
 		el, start, index = super().handleMatch(m, data)
-		el.set("class", "img-fluid")
+		el.set("class", "img-fluid")  # type: ignore
 		return el, start, index
 
 
@@ -134,6 +134,12 @@ def configuration():
 
 @app.route("/search/", methods=["POST"])
 def search():
+	"""
+	Route for the search page.
+
+	Only accepts POST requests.
+	"""
+
 	return redirect(f"/github/{GoToForm(request.form).data['search']}", code=302)
 
 
