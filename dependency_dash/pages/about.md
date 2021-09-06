@@ -51,7 +51,7 @@ Other libraries used include:
 
 ## License
 
-<br> `dependency-dash` is distributed under the [MIT License](https://choosealicense.com/licenses/mit/).
+`dependency-dash` is distributed under the [MIT License](https://choosealicense.com/licenses/mit/).
 
 ```
 Copyright (c) 2021 Dominic Davis-Foster
