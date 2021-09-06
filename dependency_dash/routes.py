@@ -30,7 +30,8 @@ Flask HTTP routes.
 import jinja2  # type: ignore
 import markdown
 from domdf_python_tools.compat import importlib_resources
-from flask import redirect, render_template, request  # type: ignore
+from flask import make_response, redirect, render_template, request, send_from_directory  # type: ignore
+from markdown.inlinepatterns import IMAGE_LINK_RE, ImageInlineProcessor
 from wtforms import Form, SelectField, StringField, SubmitField  # type: ignore
 
 # this package
@@ -54,7 +55,18 @@ def home():
 	Route for displaying the homepage.
 	"""
 
-	return render_template("home.html", form=GoToForm(request.form), home=True)
+	return render_template("home.html", home=True)
+
+
+class _ImgFluidInlineProcessor(ImageInlineProcessor):
+	"""
+	Markdown image processor to use bootstrap's ``img-fluid`` class.
+	"""
+
+	def handleMatch(self, m, data):
+		el, start, index = super().handleMatch(m, data)
+		el.set("class", "img-fluid")
+		return el, start, index
 
 
 def render_markdown_page(filename: str, template: str = "page.html"):
@@ -70,6 +82,7 @@ def render_markdown_page(filename: str, template: str = "page.html"):
 	text = jinja2.Template(raw).render().splitlines()
 
 	md = markdown.Markdown(extensions=["fenced_code", "codehilite", "toc"])
+	md.inlinePatterns.register(_ImgFluidInlineProcessor(IMAGE_LINK_RE, md), "image_link", 150)
 
 	while not text[0].strip():
 		text.pop(0)
@@ -80,12 +93,16 @@ def render_markdown_page(filename: str, template: str = "page.html"):
 
 	body = md.convert('\n'.join(text))
 
-	return render_template(
+	rendered = render_template(
 			template,
-			form=GoToForm(request.form),
 			body=body,
 			title=title,
 			)
+
+	response = make_response(rendered)
+	response.add_etag()
+	response.make_conditional(request)
+	return response
 
 
 @app.route("/about/")
@@ -116,7 +133,6 @@ def configuration():
 
 
 @app.route("/search/", methods=["POST"])
-@app.route("/search", methods=["POST"])
 def search():
 	return redirect(f"/github/{GoToForm(request.form).data['search']}", code=302)
 
