@@ -29,6 +29,7 @@ Don't import from here; import directly from ``dependency_dash`` itself.
 #
 
 # stdlib
+import mimetypes
 import os
 from http import HTTPStatus
 from typing import Optional
@@ -95,3 +96,8 @@ if "ON_HEROKU" in os.environ:
 def add_header(response):
 	response.headers["X-Clacks-Overhead"] = "GNU Terry Pratchett"
 	return response
+
+
+# Register image mimetypes
+mimetypes.types_map[".webp"] = "image/webp"
+mimetypes.types_map[".avif"] = "image/avif"

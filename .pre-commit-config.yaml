@@ -110,3 +110,12 @@ repos:
        - eslint-plugin-import@2.24.0
        - eslint-plugin-node@11.1.0
        - eslint-plugin-promise@5.1.0
+
+ - repo: local
+   hooks:
+    - id: convert-images
+      language: node
+      name: Convert images to modern web formats
+      entry: ./convert_images.sh
+      files: ^dependency_dash/static/img/(cookies.jpg|not-found.png)$
+      additional_dependencies: ["https://gitpkg.now.sh/repo-helper/squoosh/cli?dev"]
