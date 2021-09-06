@@ -50,7 +50,7 @@ else:
 	load_dotenv()  # take environment variables from .env.
 
 app = Flask("dependency_dash", template_folder=(PathPlus(__file__).parent / "templates").as_posix())
-api = Api(app, prefix="/api", doc="/api")
+api = Api(app, prefix="/api", doc="/api/")
 app.config["SWAGGER_UI_DOC_EXPANSION"] = "full"  # change to list when there's another endpoint
 app.config["JSON_SORT_KEYS"] = False
 app.config["DD_ROOT_URL"] = os.getenv("DD_ROOT_URL", "http://localhost:5000")
