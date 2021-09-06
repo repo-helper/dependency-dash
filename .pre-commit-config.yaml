@@ -116,6 +116,17 @@ repos:
     - id: convert-images
       language: node
       name: Convert images to modern web formats
-      entry: ./convert_images.sh
+      entry: ./scripts/convert_images.sh
       files: ^dependency_dash/static/img/(cookies.jpg|not-found.png)$
       additional_dependencies: ["https://gitpkg.now.sh/repo-helper/squoosh/cli?dev"]
+
+ - repo: local
+   hooks:
+    - id: compile-css
+      language: node
+      name: Compile SCSS and minify css
+      entry: ./scripts/rebuild_css.sh
+#      types_or: ["css", "scss"]
+      always_run: true
+      pass_filenames: false
+      additional_dependencies: ["sass@1.32.0"]
