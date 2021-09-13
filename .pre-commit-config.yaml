@@ -5,7 +5,7 @@ exclude: ^$
 
 repos:
  - repo: https://github.com/repo-helper/pyproject-parser
-   rev: v0.4.1
+   rev: v0.4.2
    hooks:
     - id: reformat-pyproject
 
@@ -118,7 +118,8 @@ repos:
       name: Convert images to modern web formats
       entry: ./scripts/convert_images.sh
       files: ^dependency_dash/static/img/(cookies.jpg|not-found.png)$
-      additional_dependencies: ["https://gitpkg.now.sh/repo-helper/squoosh/cli?dev"]
+      additional_dependencies:
+       - https://gitpkg.now.sh/repo-helper/squoosh/cli?dev
 
  - repo: local
    hooks:
@@ -126,7 +127,7 @@ repos:
       language: node
       name: Compile SCSS and minify css
       entry: ./scripts/rebuild_css.sh
-#      types_or: ["css", "scss"]
       always_run: true
       pass_filenames: false
-      additional_dependencies: ["sass@1.32.0"]
+      additional_dependencies:
+       - sass@1.32.0
