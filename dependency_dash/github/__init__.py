@@ -46,7 +46,7 @@ import platformdirs
 import requests
 import setup_py_upgrade  # type: ignore
 from domdf_python_tools.paths import PathPlus
-from flask import render_template, request, Response  # type: ignore
+from flask import Response, render_template, request  # type: ignore
 from github3.orgs import Organization
 from github3.repos import ShortRepository
 from github3.users import User
