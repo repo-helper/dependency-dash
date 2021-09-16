@@ -36,7 +36,7 @@ from urllib.parse import urlparse
 import platformdirs
 from domdf_python_tools.paths import PathPlus
 from flask import render_template  # type: ignore
-from packaging.version import Version
+from packaging.version import InvalidVersion, Version
 from pybadges import badge
 from pypi_json import PyPIJSON
 from shippinglabel import normalize
@@ -94,6 +94,21 @@ def format_project_links(project_urls: Dict[str, str]) -> str:
 	return ''.join(map(itemgetter(1), sorted(links.items(), key=lambda t: t[0].split()[1])))
 
 
+def _sort_versions(*versions: str):
+
+	for_sort = []
+
+	for version in versions:
+		try:
+			ver_ver = Version(version)
+		except InvalidVersion:
+			continue
+		else:
+			for_sort.append((version, ver_ver))
+
+	return [v[0] for v in sorted(for_sort, key=itemgetter(1))]
+
+
 def get_data(project_name: str) -> Dict[str, Any]:
 	"""
 	Obtain metadata for ``project_name`` from PyPI.
@@ -120,7 +135,7 @@ def get_data(project_name: str) -> Dict[str, Any]:
 				"license": metadata.info["license"],
 				"package_url": metadata.info["package_url"],
 				"project_urls": metadata.info["project_urls"],
-				"all_versions": sorted(metadata.releases.keys(), key=Version),
+				"all_versions": _sort_versions(*metadata.releases.keys()),
 				}
 
 		datafile.dump_json(data)
