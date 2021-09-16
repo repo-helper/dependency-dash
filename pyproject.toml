@@ -62,9 +62,26 @@ namespace_packages = true
 check_untyped_defs = true
 warn_unused_ignores = true
 no_implicit_optional = true
+show_error_codes = true
 
 [tool.dep_checker]
 allowed_unused = [ "gunicorn", "pygments",]
 
+[tool.snippet-fmt]
+directives = [ "code-block",]
+
 [tool.dep_checker.name_mapping]
 github3-py = "github3"
+
+[tool.dependency-dash."requirements.txt"]
+order = 10
+
+[tool.snippet-fmt.languages.python]
+reformat = true
+
+[tool.snippet-fmt.languages.TOML]
+reformat = true
+
+[tool.snippet-fmt.languages.ini]
+
+[tool.snippet-fmt.languages.json]
