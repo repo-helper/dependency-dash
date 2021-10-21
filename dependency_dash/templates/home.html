@@ -3,7 +3,7 @@
 
 {% macro searchbox(form) %}
 	{% from "_formhelpers.html" import render_field %}
-	<form action="/search" method="post" class="form-goto">
+	<form action="/search/" method="post" class="form-goto">
 		<div class="input-group mb-3 flex-grow">
 			<div class="form-label-group flex-grow">
 				{{ form.search(class_="form-control", placeholder="", aria_label="Repository name", type="search") }}
