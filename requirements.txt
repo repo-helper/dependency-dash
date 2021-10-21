@@ -10,7 +10,7 @@ packaging>=21.0
 platformdirs>=2.2.0
 pybadges>=2.2.1
 pygments>=2.10.0
-pypi-json>=0.1.1
+pypi-json>=0.2.0
 requests>=2.26.0
 setup-py-upgrade==1.2.1
 shippinglabel>=1.0.0
