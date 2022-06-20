@@ -32,13 +32,13 @@ Don't import from here; import directly from ``dependency_dash`` itself.
 import mimetypes
 import os
 from http import HTTPStatus
-from typing import Optional
+from typing import Any, Dict, Optional
 
 # 3rd party
 from domdf_python_tools.paths import PathPlus
-from flask import Flask, Response, redirect, request, url_for  # type: ignore
-from flask_restx import Api  # type: ignore
-from wtforms import Form, StringField  # type: ignore
+from flask import Flask, Response, redirect, request, url_for  # type: ignore[import]
+from flask_restx import Api  # type: ignore[import]
+from wtforms import Form, StringField  # type: ignore[import]
 
 __all__ = ["app", "api"]
 
@@ -62,7 +62,7 @@ class GoToForm(Form):
 
 
 @app.context_processor
-def inject_constants():
+def inject_constants() -> Dict[str, Any]:
 	return {
 			"show_sidebar": False,
 			"root_url": app.config["DD_ROOT_URL"],
@@ -99,7 +99,7 @@ if "ON_HEROKU" in os.environ:
 
 
 @app.after_request
-def add_header(response):
+def add_header(response: Response) -> Response:
 	response.headers["X-Clacks-Overhead"] = "GNU Terry Pratchett"
 	return response
 

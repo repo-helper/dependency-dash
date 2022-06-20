@@ -383,7 +383,7 @@ def _normalize(name: str) -> str:
 
 
 @htmx(app, "/github/<username>/<repository>/<branch>/")
-def htmx_github_project(username: str, repository: str, branch: str):
+def htmx_github_project(username: str, repository: str, branch: str) -> str:
 	"""
 	HTMX callback for obtaining the requirements table for the given repository.
 
@@ -410,7 +410,7 @@ def htmx_github_project(username: str, repository: str, branch: str):
 
 
 @app.route("/github/<username>/<repository>/badge.svg")
-def badge_github_project(username: str, repository: str):
+def badge_github_project(username: str, repository: str) -> Response:
 	"""
 	Route for displaying the status badge for the given project.
 
@@ -423,12 +423,12 @@ def badge_github_project(username: str, repository: str):
 	try:
 		repo = GITHUB.repository(username, repository)
 	except github3.exceptions.NotFoundError:
-		return "Repository not found.", 404
+		return Response("Repository not found.", 404)
 
 	try:
 		data = get_repo_requirements(repo.full_name, repo.default_branch)
 	except NotImplementedError:
-		return render_template("no_supported_files.html"), 404
+		return Response(render_template("no_supported_files.html"), 404)
 	else:
 		all_requirements: List[ComparableRequirement] = []
 		for filename, requirements, invalid, include in data:
@@ -453,7 +453,7 @@ def badge_github_project(username: str, repository: str):
 
 
 @app.route("/github/<username>/")
-def github_user(username: str):
+def github_user(username: str) -> str:
 	"""
 	Route for displaying information about a all repositories owned by ``username``.
 
@@ -468,7 +468,7 @@ def github_user(username: str):
 
 
 @htmx(app, "/github/<username>/")
-def htmx_github_user(username: str):
+def htmx_github_user(username: str) -> str:
 	"""
 	HTMX callback for obtaining the projects table for the given user.
 

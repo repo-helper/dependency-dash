@@ -35,7 +35,7 @@ from typing import Any, Callable
 from urllib.parse import urljoin
 
 # 3rd party
-from flask import Flask, render_template  # type: ignore
+from flask import Flask, render_template  # type: ignore[import]
 
 __all__ = ["htmx"]
 
@@ -55,7 +55,7 @@ def htmx(app: "Flask", rule: str, **options: Any) -> Callable:
 		endpoint = options.pop("endpoint", None)
 
 		@functools.wraps(f)
-		def rule_func(*args, **kwargs):
+		def rule_func(*args, **kwargs) -> str:
 			try:
 				return f(*args, **kwargs)
 			except Exception as e:

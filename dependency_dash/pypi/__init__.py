@@ -29,13 +29,13 @@ Retrieve and cache data from PyPI.
 # stdlib
 from collections import Counter
 from operator import itemgetter
-from typing import Any, Dict, Iterable, Iterator, Tuple
+from typing import Any, Dict, Iterable, Iterator, List, Tuple
 from urllib.parse import urlparse
 
 # 3rd party
 import platformdirs
 from domdf_python_tools.paths import PathPlus
-from flask import render_template  # type: ignore
+from flask import render_template  # type: ignore[import]
 from packaging.version import InvalidVersion, Version
 from pybadges import badge
 from pypi_json import PyPIJSON
@@ -94,7 +94,7 @@ def format_project_links(project_urls: Dict[str, str]) -> str:
 	return ''.join(map(itemgetter(1), sorted(links.items(), key=lambda t: t[0].split()[1])))
 
 
-def _sort_versions(*versions: str):
+def _sort_versions(*versions: str) -> List[str]:
 
 	for_sort = []
 

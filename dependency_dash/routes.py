@@ -26,11 +26,14 @@ Flask HTTP routes.
 #  OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+# stdlib
+from typing import Tuple
+
 # 3rd party
-import jinja2  # type: ignore
+import jinja2  # type: ignore[import]
 import markdown
 from domdf_python_tools.compat import importlib_resources
-from flask import make_response, redirect, render_template, request, send_from_directory  # type: ignore
+from flask import Response, make_response, redirect, render_template, request  # type: ignore[import]
 from markdown.inlinepatterns import IMAGE_LINK_RE, ImageInlineProcessor
 
 # this package
@@ -49,7 +52,7 @@ __all__ = [
 
 
 @app.route('/')
-def home():
+def home() -> str:
 	"""
 	Route for displaying the homepage.
 	"""
@@ -62,13 +65,14 @@ class _ImgFluidInlineProcessor(ImageInlineProcessor):
 	Markdown image processor to use bootstrap's ``img-fluid`` class.
 	"""
 
-	def handleMatch(self, m, data):
+	def handleMatch(self, m, data):  # noqa: MAN001,MAN002
 		el, start, index = super().handleMatch(m, data)
-		el.set("class", "img-fluid")  # type: ignore
+		assert el is not None
+		el.set("class", "img-fluid")
 		return el, start, index
 
 
-def render_markdown_page(filename: str, template: str = "page.html"):
+def render_markdown_page(filename: str, template: str = "page.html") -> Response:
 	"""
 	Render a markdown page to HTML.
 
@@ -105,7 +109,7 @@ def render_markdown_page(filename: str, template: str = "page.html"):
 
 
 @app.route("/about/")
-def about():
+def about() -> Response:
 	"""
 	Route for displaying the "about" page.
 	"""
@@ -114,7 +118,7 @@ def about():
 
 
 @app.route("/usage/")
-def usage():
+def usage() -> Response:
 	"""
 	Route for displaying the "usage" page.
 	"""
@@ -123,7 +127,7 @@ def usage():
 
 
 @app.route("/configuration/")
-def configuration():
+def configuration() -> Response:
 	"""
 	Route for displaying the "configuration" page.
 	"""
@@ -132,7 +136,7 @@ def configuration():
 
 
 @app.route("/search/", methods=["POST"])
-def search():
+def search() -> Response:
 	"""
 	Route for the search page.
 
@@ -143,7 +147,7 @@ def search():
 
 
 @app.errorhandler(404)
-def page_not_found(e):
+def page_not_found(e: Exception) -> Tuple[str, int]:
 	"""
 	Route for HTTP 404 errors.
 
@@ -154,7 +158,7 @@ def page_not_found(e):
 
 
 @app.errorhandler(500)
-def server_error(e):
+def server_error(e: Exception) -> Tuple[str, int]:
 	"""
 	Route for HTTP 500 errors.
 
