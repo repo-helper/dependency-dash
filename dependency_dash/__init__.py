@@ -27,7 +27,7 @@ A fully Open Source dependency dashboard.
 #
 
 # this package
-from dependency_dash import github, routes
+from dependency_dash import github, routes  # noqa: F401
 from dependency_dash._app import api, app
 
 __author__: str = "Dominic Davis-Foster"

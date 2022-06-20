@@ -32,7 +32,6 @@ import markdown
 from domdf_python_tools.compat import importlib_resources
 from flask import make_response, redirect, render_template, request, send_from_directory  # type: ignore
 from markdown.inlinepatterns import IMAGE_LINK_RE, ImageInlineProcessor
-from wtforms import Form, SelectField, StringField, SubmitField  # type: ignore
 
 # this package
 from dependency_dash._app import GoToForm, app

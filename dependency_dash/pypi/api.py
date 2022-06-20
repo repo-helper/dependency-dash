@@ -27,9 +27,7 @@ Common API Models.
 #
 
 # 3rd party
-import setup_py_upgrade  # type: ignore
-from flask import render_template, request  # type: ignore
-from flask_restx import fields  # type: ignore
+from flask_restx import fields  # type: ignore[import]
 
 # this package
 from dependency_dash._app import api

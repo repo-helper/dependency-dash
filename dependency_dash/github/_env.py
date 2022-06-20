@@ -32,9 +32,7 @@ import os
 # 3rd party
 import github3.repos.contents
 import platformdirs
-import setup_py_upgrade  # type: ignore
 from domdf_python_tools.paths import PathPlus
-from flask import render_template, request  # type: ignore
 
 try:
 	# 3rd party

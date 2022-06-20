@@ -34,8 +34,7 @@ from urllib.parse import urljoin
 # 3rd party
 import github3
 import github3.repos.contents
-import setup_py_upgrade  # type: ignore
-from flask_restx import Namespace, Resource, fields  # type: ignore
+from flask_restx import Namespace, Resource, fields  # type: ignore[import]
 
 # this package
 from dependency_dash._app import app
