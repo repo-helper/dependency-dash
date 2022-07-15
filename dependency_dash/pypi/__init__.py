@@ -131,8 +131,8 @@ def get_data(project_name: str) -> Dict[str, Any]:
 		data = {
 				"name": metadata.info["name"],
 				"version": metadata.info["version"],
-				"home_page": metadata.info["home_page"],
-				"license": metadata.info["license"],
+				"home_page": metadata.info["home_page"] or '',
+				"license": metadata.info["license"] or '',
 				"package_url": metadata.info["package_url"],
 				"project_urls": metadata.info["project_urls"],
 				"all_versions": _sort_versions(*metadata.releases.keys()),
