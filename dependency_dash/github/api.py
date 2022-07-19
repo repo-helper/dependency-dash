@@ -79,7 +79,7 @@ class GitHubProjectAPI(Resource):
 	@api.response(200, "Success", github_project_model)
 	@api.response(404, "Repository not found or no supported files in repository.")
 	@api.doc(id="get_github_project")
-	def get(self, username: str, repository: str):
+	def get(self, username: str, repository: str) -> Tuple[Dict, int]:
 		"""
 		Returns a JSON response, giving the status for each of the repository's dependencies.
 		"""
@@ -111,11 +111,11 @@ class GitHubProjectAPI(Resource):
 					req_data["current_version"] = req_data.pop("version")
 					output[filename].append({"requirement": str(req), "status": status, **req_data})
 
-			return output
+			return output, 200
 
 
 @app.route("/api/<path:path>")
-def api_error_404(path: str):
+def api_error_404(path: str) -> Tuple[Dict[str, str], int]:
 	return {
 		"message": "Not Found",
 		"documentation_url": urljoin(app.config["DD_ROOT_URL"], "/api"),

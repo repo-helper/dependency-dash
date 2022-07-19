@@ -36,7 +36,7 @@ from typing import Any, Dict, Optional
 
 # 3rd party
 from domdf_python_tools.paths import PathPlus
-from flask import Flask, Response, redirect, request, url_for  # type: ignore[import]
+from flask import Flask, Response, redirect, request, url_for
 from flask_restx import Api  # type: ignore[import]
 from wtforms import Form, StringField  # type: ignore[import]
 
@@ -82,16 +82,21 @@ def https_redirect() -> Optional[Response]:
 	if request.scheme != "http":
 		return None
 
-	return redirect(
+	view_args: Dict[str, Any] = request.view_args or {}
+	args: Dict[str, Any] = dict(request.args or {})
+
+	retval = redirect(
 			url_for(
 					request.endpoint,
 					_scheme="https",
 					_external=True,
-					**(request.view_args or {}),
-					**(request.args or {}),
+					**view_args,
+					**args,
 					),
 			HTTPStatus.PERMANENT_REDIRECT,
 			)
+
+	return retval  # type: ignore[return-value]
 
 
 if "ON_HEROKU" in os.environ:

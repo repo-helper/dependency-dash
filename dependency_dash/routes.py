@@ -30,10 +30,10 @@ Flask HTTP routes.
 from typing import Tuple
 
 # 3rd party
-import jinja2  # type: ignore[import]
+import jinja2
 import markdown
 from domdf_python_tools.compat import importlib_resources
-from flask import Response, make_response, redirect, render_template, request  # type: ignore[import]
+from flask import Response, make_response, redirect, render_template, request
 from markdown.inlinepatterns import IMAGE_LINK_RE, ImageInlineProcessor
 
 # this package
@@ -143,7 +143,10 @@ def search() -> Response:
 	Only accepts POST requests.
 	"""
 
-	return redirect(f"/github/{GoToForm(request.form).data['search']}", code=302)
+	return redirect(  # type: ignore[return-value]
+			f"/github/{GoToForm(request.form).data['search']}",
+			code=302,
+			)
 
 
 @app.errorhandler(404)

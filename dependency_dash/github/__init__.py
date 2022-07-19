@@ -44,9 +44,9 @@ import github3
 import github3.repos.contents
 import platformdirs
 import requests
-import setup_py_upgrade  # type: ignore
+import setup_py_upgrade  # type: ignore[import]
 from domdf_python_tools.paths import PathPlus
-from flask import Response, render_template, request  # type: ignore
+from flask import Response, render_template, request
 from github3.orgs import Organization
 from github3.repos import ShortRepository
 from github3.users import User
@@ -57,7 +57,7 @@ from shippinglabel.requirements import ComparableRequirement, parse_requirements
 # this package
 from dependency_dash._app import app
 from dependency_dash.github._env import GITHUB
-from dependency_dash.github.api import GitHubProjectAPI
+from dependency_dash.github.api import GitHubProjectAPI  # noqa: F401
 from dependency_dash.htmx import htmx
 from dependency_dash.pypi import format_project_links, get_dependency_status, make_badge
 
@@ -348,7 +348,7 @@ def get_repo_requirements(
 
 
 @app.route("/github/<username>/<repository>/")
-def github_project(username: str, repository: str):
+def github_project(username: str, repository: str) -> Response:
 	"""
 	Route for displaying information about a single github repository.
 
@@ -361,17 +361,22 @@ def github_project(username: str, repository: str):
 	try:
 		repo = GITHUB.repository(username, repository)
 	except github3.exceptions.NotFoundError:
-		return render_template(
-			"project_404.html",
-			project_name=project_name,
-			description=f"Dependency status for https://github.com/{project_name}",
-			), 404
+		return Response(
+				render_template(
+						"project_404.html",
+						project_name=project_name,
+						description=f"Dependency status for https://github.com/{project_name}",
+						),
+				404
+				)
 
-	return render_template(
-			"project.html",
-			project_name=repo.full_name,
-			data_url=f"/htmx/github/{repo.full_name}/{repo.default_branch}",
-			description=f"Dependency status for https://github.com/{repo.full_name}",
+	return Response(
+			render_template(
+					"project.html",
+					project_name=repo.full_name,
+					data_url=f"/htmx/github/{repo.full_name}/{repo.default_branch}",
+					description=f"Dependency status for https://github.com/{repo.full_name}",
+					)
 			)
 
 
@@ -504,7 +509,7 @@ def htmx_github_user(username: str) -> str:
 		except (InvalidRequirement, InvalidVersion):
 			return render_template("repository_status.html", status="invalid")
 
-	page = request.args.get("page", 1)
+	page = int(request.args.get("page", 1))
 
 	try:
 		user = GITHUB.user(username)
@@ -679,3 +684,19 @@ def get_our_config(
 			}
 	datafile.dump_json(data)
 	return files
+
+
+#
+# def parse_config():
+# 	"""
+#
+# 	Possible syntax:
+#
+# 	* Filename to ``requirements.txt``-style.
+# 	* ``setup.cfg`` -- to consider the library requirements
+# 	# * ``setup.cfg[extra1, extra2]`` -- to consider the extras with the given name
+# 	* ``pyproject.toml`` -- to consider the library requirements
+# 	# * ``pyproject.toml[extra1, extra2]`` -- to consider the extras with the given name
+#
+# 	:return:
+# 	"""

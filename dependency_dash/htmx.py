@@ -35,7 +35,7 @@ from typing import Any, Callable
 from urllib.parse import urljoin
 
 # 3rd party
-from flask import Flask, render_template  # type: ignore[import]
+from flask import Flask, render_template
 
 __all__ = ["htmx"]
 

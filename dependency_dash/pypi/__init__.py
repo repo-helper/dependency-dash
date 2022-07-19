@@ -35,7 +35,7 @@ from urllib.parse import urlparse
 # 3rd party
 import platformdirs
 from domdf_python_tools.paths import PathPlus
-from flask import render_template  # type: ignore[import]
+from flask import render_template
 from packaging.version import InvalidVersion, Version
 from pybadges import badge
 from pypi_json import PyPIJSON
@@ -128,6 +128,11 @@ def get_data(project_name: str) -> Dict[str, Any]:
 		with PyPIJSON() as client:
 			metadata = client.get_metadata(project_name)
 
+		releases = metadata.releases
+		# .releases may be None if a version is passed,
+		# but in our case we aren't.
+		assert releases is not None
+
 		data = {
 				"name": metadata.info["name"],
 				"version": metadata.info["version"],
@@ -135,7 +140,7 @@ def get_data(project_name: str) -> Dict[str, Any]:
 				"license": metadata.info["license"] or '',
 				"package_url": metadata.info["package_url"],
 				"project_urls": metadata.info["project_urls"],
-				"all_versions": _sort_versions(*metadata.releases.keys()),
+				"all_versions": _sort_versions(*releases.keys()),
 				}
 
 		datafile.dump_json(data)
