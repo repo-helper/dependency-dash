@@ -50,6 +50,7 @@ known_third_party = [
     "setup_py_upgrade",
     "shippinglabel",
     "typing_extensions",
+    "werkzeug",
     "wtforms",
 ]
 known_first_party = "dependency_dash"
