@@ -17,8 +17,10 @@ dependency-dash
 
 	* - Tests
 	  - |actions_linux| |actions_macos|
+	* - PyPI
+	  - |pypi-version| |supported-versions| |supported-implementations| |wheel|
 	* - Activity
-	  - |commits-latest| |commits-since| |maintained|
+	  - |commits-latest| |commits-since| |maintained| |pypi-downloads|
 	* - QA
 	  - |codefactor| |actions_flake8| |actions_mypy|
 	* - Other
@@ -48,6 +50,22 @@ dependency-dash
 	:target: https://www.codefactor.io/repository/github/repo-helper/dependency-dash
 	:alt: CodeFactor Grade
 
+.. |pypi-version| image:: https://img.shields.io/pypi/v/dependency-dash
+	:target: https://pypi.org/project/dependency-dash/
+	:alt: PyPI - Package Version
+
+.. |supported-versions| image:: https://img.shields.io/pypi/pyversions/dependency-dash?logo=python&logoColor=white
+	:target: https://pypi.org/project/dependency-dash/
+	:alt: PyPI - Supported Python Versions
+
+.. |supported-implementations| image:: https://img.shields.io/pypi/implementation/dependency-dash
+	:target: https://pypi.org/project/dependency-dash/
+	:alt: PyPI - Supported Implementations
+
+.. |wheel| image:: https://img.shields.io/pypi/wheel/dependency-dash
+	:target: https://pypi.org/project/dependency-dash/
+	:alt: PyPI - Wheel
+
 .. |license| image:: https://img.shields.io/github/license/repo-helper/dependency-dash
 	:target: https://github.com/repo-helper/dependency-dash/blob/master/LICENSE
 	:alt: License
@@ -66,6 +84,10 @@ dependency-dash
 .. |maintained| image:: https://img.shields.io/maintenance/yes/2022
 	:alt: Maintenance
 
+.. |pypi-downloads| image:: https://img.shields.io/pypi/dm/dependency-dash
+	:target: https://pypi.org/project/dependency-dash/
+	:alt: PyPI - Downloads
+
 .. end shields
 
 Installation
@@ -73,13 +95,13 @@ Installation
 
 .. start installation
 
-``dependency-dash`` can be installed from GitHub.
+``dependency-dash`` can be installed from PyPI.
 
 To install with ``pip``:
 
 .. code-block:: bash
 
-	$ python -m pip install git+https://github.com/repo-helper/dependency-dash
+	$ python -m pip install dependency-dash
 
 .. end installation
 
