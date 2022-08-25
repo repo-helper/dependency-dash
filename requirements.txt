@@ -15,3 +15,4 @@ requests>=2.26.0
 setup-py-upgrade==1.2.1
 shippinglabel>=1.0.0
 wtforms>=2.2.0
+werkzeug<2.2
