@@ -65,7 +65,7 @@ no_implicit_optional = true
 show_error_codes = true
 
 [tool.dep_checker]
-allowed_unused = [ "gunicorn", "pygments",]
+allowed_unused = [ "gunicorn", "pygments", "werkzeug",]
 
 [tool.snippet-fmt]
 directives = [ "code-block",]
