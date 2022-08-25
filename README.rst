@@ -73,7 +73,7 @@ dependency-dash
 .. |language| image:: https://img.shields.io/github/languages/top/repo-helper/dependency-dash
 	:alt: GitHub top language
 
-.. |commits-since| image:: https://img.shields.io/github/commits-since/repo-helper/dependency-dash/v0.0.0
+.. |commits-since| image:: https://img.shields.io/github/commits-since/repo-helper/dependency-dash/v0.1.0b1
 	:target: https://github.com/repo-helper/dependency-dash/pulse
 	:alt: GitHub commits since tagged version
 

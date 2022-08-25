@@ -4,7 +4,7 @@ build-backend = "whey"
 
 [project]
 name = "dependency-dash"
-version = "0.0.0"
+version = "0.1.0b1"
 description = "A fully Open Source dependency dashboard."
 readme = "README.rst"
 keywords = [ "dashboard", "dependency", "github", "requirement",]
