@@ -88,10 +88,10 @@ Usage
 --------
 
 Before starting you'll need to `create a personal access token`_.
-The doesn't need access to any additional scopes.
+The token doesn't need access to any additional scopes.
 
 Then set the ``GITHUB_TOKEN`` environment variable to the token.
-``dependency-dash`` also supports ``.env`` files is you wish to place the token in there instead.
+``dependency-dash`` supports ``.env`` files is you wish to place the token in there instead.
 
 You'll also need to set the ``DD_ROOT_URL`` to the root URL of the web server,
 including the scheme.
