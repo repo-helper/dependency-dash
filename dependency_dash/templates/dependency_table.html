@@ -4,7 +4,7 @@
 	{% set dependencies = list(get_dependency_status(requirements)) %}
 	{% set anchor_id = normalize(filename) %}
 
-	<section id="{{ filename }}" class="dependency-table-header  text-center">
+	<section id="{{ filename }}-button" class="dependency-table-header  text-center">
 		<button
 				class="btn text-center"
 				type="button"
