@@ -27,13 +27,14 @@ Flask HTTP routes.
 #
 
 # stdlib
-from typing import Tuple
+from typing import Dict, Tuple
+from urllib.parse import urljoin
 
 # 3rd party
 import jinja2
 import markdown
 from domdf_python_tools.compat import importlib_resources
-from flask import Response, make_response, redirect, render_template, request
+from flask import Request, Response, make_response, redirect, render_template, request
 from markdown.inlinepatterns import IMAGE_LINK_RE, ImageInlineProcessor
 
 # this package
@@ -51,13 +52,22 @@ __all__ = [
 		]
 
 
+def get_canonical_url(request: Request) -> str:
+	return urljoin(app.config["DD_ROOT_URL"], request.path)
+
+
+def canonical_url_header(request: Request) -> Dict[str, str]:
+	canonical_url = get_canonical_url(request)
+	return {"Link": f'<{canonical_url}>; rel="canonical"'}
+
+
 @app.route('/')
 def home() -> str:
 	"""
 	Route for displaying the homepage.
 	"""
 
-	return render_template("home.html", home=True)
+	return render_template("home.html", home=True), canonical_url_header(request)
 
 
 class _ImgFluidInlineProcessor(ImageInlineProcessor):
@@ -105,6 +115,7 @@ def render_markdown_page(filename: str, template: str = "page.html") -> Response
 	response = make_response(rendered)
 	response.add_etag()
 	response.make_conditional(request)
+	response.headers.update(canonical_url_header(request))
 	return response
 
 
