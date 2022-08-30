@@ -42,8 +42,8 @@ dependency-dash
 	:target: https://github.com/repo-helper/dependency-dash/actions?query=workflow%3A%22mypy%22
 	:alt: mypy status
 
-.. |requires| image:: https://dependency-dash.herokuapp.com/github/repo-helper/dependency-dash/badge.svg
-	:target: https://dependency-dash.herokuapp.com/github/repo-helper/dependency-dash/
+.. |requires| image:: https://dependency-dash.repo-helper.uk/github/repo-helper/dependency-dash/badge.svg
+	:target: https://dependency-dash.repo-helper.uk/github/repo-helper/dependency-dash/
 	:alt: Requirements Status
 
 .. |codefactor| image:: https://img.shields.io/codefactor/grade/github/repo-helper/dependency-dash?logo=codefactor
