@@ -62,12 +62,12 @@ def canonical_url_header(request: Request) -> Dict[str, str]:
 
 
 @app.route('/')
-def home() -> str:
+def home() -> Response:
 	"""
 	Route for displaying the homepage.
 	"""
 
-	return render_template("home.html", home=True), canonical_url_header(request)
+	return Response(render_template("home.html", home=True), headers=canonical_url_header(request))
 
 
 class _ImgFluidInlineProcessor(ImageInlineProcessor):
