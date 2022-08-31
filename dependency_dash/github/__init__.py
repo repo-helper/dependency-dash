@@ -374,7 +374,7 @@ def github_project(username: str, repository: str) -> Response:
 			render_template(
 					"project.html",
 					project_name=repo.full_name,
-					data_url=f"/htmx/github/{repo.full_name}/{repo.default_branch}",
+					data_url=f"/htmx/github/{repo.full_name}/{repo.default_branch}/",
 					description=f"Dependency status for https://github.com/{repo.full_name}",
 					)
 			)
@@ -468,7 +468,7 @@ def github_user(username: str) -> str:
 	return render_template(
 			"user.html",
 			username=username,
-			data_url=f"/htmx/github/{username}",
+			data_url=f"/htmx/github/{username}/",
 			)
 
 
@@ -527,7 +527,7 @@ def htmx_github_user(username: str) -> str:
 	return render_template(
 			"repositories_table.html",
 			repositories=repositories,
-			data_url=f"/htmx/github/{username}",
+			data_url=f"/htmx/github/{username}/",
 			page=int(page) + 1,
 			)
 
