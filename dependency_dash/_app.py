@@ -36,7 +36,7 @@ from typing import Any, Dict, Optional
 
 # 3rd party
 from domdf_python_tools.paths import PathPlus
-from flask import Flask, Response, redirect, request, url_for
+from flask import Flask, Response, redirect, request, send_file, url_for
 from flask_restx import Api  # type: ignore[import]
 from wtforms import Form, StringField  # type: ignore[import]
 
@@ -61,14 +61,35 @@ class GoToForm(Form):
 	search = StringField('')
 
 
+# Possible vendor customised CSS
+# JS and HTML support may come later
+vendor_css_file = (PathPlus.cwd() / "vendor" / "vendor.css")
+if vendor_css_file.is_file():
+	print("Applying vendor customisation")
+	has_vendor_stylesheet = True
+
+	@app.route("/vendor.css")
+	def serve_vendor_css():
+		return send_file(vendor_css_file, max_age=300)  # seconds, 5 mins
+
+else:
+	has_vendor_stylesheet = False
+
+
 @app.context_processor
 def inject_constants() -> Dict[str, Any]:
-	return {
+	constants = {
 			"show_sidebar": False,
 			"root_url": app.config["DD_ROOT_URL"],
 			"list": list,
 			"form": GoToForm(request.form),
+			"extra_stylesheets": []
 			}
+
+	if has_vendor_stylesheet:
+		constants["extra_stylesheets"] = [url_for("serve_vendor_css")]
+
+	return constants
 
 
 def https_redirect() -> Optional[Response]:
