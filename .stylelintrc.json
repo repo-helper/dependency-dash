@@ -7,5 +7,6 @@
     "selector-list-comma-newline-after": null,
     "media-feature-name-no-unknown": null,
     "shorthand-property-no-redundant-values": [true, {}],
-    "at-rule-no-unknown": [true, {"ignoreAtRules": ["function", "for", "return", "mixin", "include"]}]}
+    "at-rule-no-unknown": [true, {"ignoreAtRules": ["function", "for", "return", "mixin", "include"]}]},
+    "string-quotes": null
 }
