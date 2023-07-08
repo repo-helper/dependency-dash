@@ -29,16 +29,18 @@ Retrieve and cache data from PyPI.
 # stdlib
 from collections import Counter
 from operator import itemgetter
-from typing import Any, Dict, Iterable, Iterator, List, Tuple
+from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple
 from urllib.parse import urlparse
 
 # 3rd party
 import platformdirs
+import requests
 from domdf_python_tools.paths import PathPlus
 from flask import render_template
+from packaging.requirements import InvalidRequirement
 from packaging.version import InvalidVersion, Version
 from pybadges import badge
-from pypi_json import PyPIJSON
+from pypi_json import ProjectMetadata, PyPIJSON
 from shippinglabel import normalize
 from shippinglabel.requirements import ComparableRequirement
 
@@ -122,28 +124,57 @@ def get_data(project_name: str) -> Dict[str, Any]:
 	datafile = CACHE_DIR / project_name[0] / f"{project_name}.json"
 	datafile.parent.maybe_make(parents=True)
 
+	def get_updated_data(etag=None, stale_data: Optional[Dict[str, Any]] = None):
+		with PyPIJSON() as client:
+			query_url = client.endpoint / project_name / "json"
+
+			if etag is None:
+				headers = {}
+			else:
+				headers = {"If-None-Match": str(etag)}
+
+			response: requests.Response = query_url.get(timeout=client.timeout, headers=headers)
+
+			if response.status_code == 404:
+				raise InvalidRequirement(f"No such project {project_name!r}")
+			elif response.status_code == 304 and etag is not None and stale_data is not None:
+				return stale_data
+			elif response.status_code != 200:
+				raise requests.HTTPError(
+						f"An error occurred when obtaining project metadata for {project_name!r}: "
+						f"HTTP Status {response.status_code}",
+						response=response,
+						)
+
+			metadata = ProjectMetadata(**response.json())
+
+			releases = metadata.releases
+			# .releases may be None if a version is passed, but in our case we aren't.
+			assert releases is not None
+
+			return {
+					"name": metadata.info["name"],
+					"version": metadata.info["version"],
+					"home_page": metadata.info["home_page"] or '',
+					"license": metadata.info["license"] or '',
+					"package_url": metadata.info["package_url"],
+					"project_urls": metadata.info["project_urls"],
+					"all_versions": _sort_versions(*releases.keys()),
+					"etag": response.headers["etag"],
+					}
+
 	try:
 		data = datafile.load_json()
+		old_etag = data.get("etag", None)
+		if not old_etag:
+			data = get_updated_data(stale_data=data)
+		else:
+			data = get_updated_data(etag=old_etag, stale_data=data)
+
 	except FileNotFoundError:
-		with PyPIJSON() as client:
-			metadata = client.get_metadata(project_name)
+		data = get_updated_data()
 
-		releases = metadata.releases
-		# .releases may be None if a version is passed,
-		# but in our case we aren't.
-		assert releases is not None
-
-		data = {
-				"name": metadata.info["name"],
-				"version": metadata.info["version"],
-				"home_page": metadata.info["home_page"] or '',
-				"license": metadata.info["license"] or '',
-				"package_url": metadata.info["package_url"],
-				"project_urls": metadata.info["project_urls"],
-				"all_versions": _sort_versions(*releases.keys()),
-				}
-
-		datafile.dump_json(data)
+	datafile.dump_json(data)
 
 	return data
 
