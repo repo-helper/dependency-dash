@@ -453,7 +453,8 @@ def badge_github_project(username: str, repository: str) -> Response:
 
 		resp.headers["ETag"] = etag
 		resp.headers["Cache-Control"] = "max-age=600"
-		resp.headers["Expires"] = (datetime.utcnow() + timedelta(seconds=30)).strftime("%a, %d %b %Y %H:%M:%S GMT")
+		expires = (datetime.utcnow() + timedelta(seconds=600)).strftime("%a, %d %b %Y %H:%M:%S GMT")
+		resp.headers["Expires"] = expires
 		return resp
 
 
