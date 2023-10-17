@@ -27,7 +27,9 @@ Retrieve and cache data from PyPI.
 #
 
 # stdlib
+import datetime
 from collections import Counter
+from email.utils import parsedate_to_datetime
 from operator import itemgetter
 from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple
 from urllib.parse import urlparse
@@ -124,7 +126,7 @@ def get_data(project_name: str) -> Dict[str, Any]:
 	datafile = CACHE_DIR / project_name[0] / f"{project_name}.json"
 	datafile.parent.maybe_make(parents=True)
 
-	def get_updated_data(etag=None, stale_data: Optional[Dict[str, Any]] = None):
+	def get_updated_data(etag: Optional[str] = None, stale_data: Optional[Dict[str, Any]] = None):
 		with PyPIJSON() as client:
 			query_url = client.endpoint / project_name / "json"
 
@@ -138,6 +140,7 @@ def get_data(project_name: str) -> Dict[str, Any]:
 			if response.status_code == 404:
 				raise InvalidRequirement(f"No such project {project_name!r}")
 			elif response.status_code == 304 and etag is not None and stale_data is not None:
+				stale_data["last_modified"] = parsedate_to_datetime(response.headers["date"]).timestamp()
 				return stale_data
 			elif response.status_code != 200:
 				raise requests.HTTPError(
@@ -161,10 +164,16 @@ def get_data(project_name: str) -> Dict[str, Any]:
 					"project_urls": metadata.info["project_urls"],
 					"all_versions": _sort_versions(*releases.keys()),
 					"etag": response.headers["etag"],
+					"last_modified": parsedate_to_datetime(response.headers["date"]).timestamp(),
 					}
 
 	try:
 		data = datafile.load_json()
+
+		last_modified = data.get("last_modified")
+		if last_modified and datetime.datetime.now().timestamp() - last_modified < 300:  # 5 mins:
+			return data
+
 		old_etag = data.get("etag", None)
 		if not old_etag:
 			data = get_updated_data(stale_data=data)
