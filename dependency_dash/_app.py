@@ -69,7 +69,7 @@ if vendor_css_file.is_file():
 	has_vendor_stylesheet = True
 
 	@app.route("/vendor.css")
-	def serve_vendor_css():
+	def serve_vendor_css() -> Response:
 		return send_file(vendor_css_file, max_age=300)  # seconds, 5 mins
 
 else:

@@ -126,7 +126,10 @@ def get_data(project_name: str) -> Dict[str, Any]:
 	datafile = CACHE_DIR / project_name[0] / f"{project_name}.json"
 	datafile.parent.maybe_make(parents=True)
 
-	def get_updated_data(etag: Optional[str] = None, stale_data: Optional[Dict[str, Any]] = None):
+	def get_updated_data(
+			etag: Optional[str] = None,
+			stale_data: Optional[Dict[str, Any]] = None,
+			) -> Dict[str, Any]:
 		with PyPIJSON() as client:
 			query_url = client.endpoint / project_name / "json"
 

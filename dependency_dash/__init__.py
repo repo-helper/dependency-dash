@@ -27,13 +27,13 @@ A fully Open Source dependency dashboard.
 #
 
 # 3rd party
-import restx_monkey as monkey
+import restx_monkey as monkey  # type: ignore[import]
 
 monkey.patch_restx()
 
 # this package
-from dependency_dash import github, routes  # noqa: F401
-from dependency_dash._app import api, app
+from dependency_dash import github, routes  # noqa: F401,E402
+from dependency_dash._app import api, app  # noqa: E402
 
 __author__: str = "Dominic Davis-Foster"
 __copyright__: str = "2021 Dominic Davis-Foster"

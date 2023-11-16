@@ -93,7 +93,7 @@ class _ImgFluidInlineProcessor(ImageInlineProcessor):
 	def handleMatch(self, m, data):  # noqa: MAN001,MAN002
 		el, start, index = super().handleMatch(m, data)
 		assert el is not None
-		el.set("class", "img-fluid")
+		el.set("class", "img-fluid")  # type: ignore[union-attr]
 		return el, start, index
 
 

@@ -63,6 +63,7 @@ check_untyped_defs = true
 warn_unused_ignores = true
 no_implicit_optional = true
 show_error_codes = true
+incremental = false
 
 [tool.dep_checker]
 allowed_unused = [ "gunicorn", "pygments", "werkzeug",]
