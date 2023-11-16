@@ -70,6 +70,21 @@ def home() -> Response:
 	return Response(render_template("home.html", home=True), headers=canonical_url_header(request))
 
 
+@app.route("/.well-known/security.txt")
+def security_txt() -> Response:
+	"""
+	Route for displaying the security.txt file.
+	"""
+
+	content = """\
+Contact: https://github.com/repo-helper/dependency-dash/security/advisories
+Last-Updated: 2023-11-16T14:00:00.000+00:00
+Expires: 2024-02-16T14:00:00.000+00:00
+"""
+
+	return Response(content, headers={"Content-Type": "text/plain; charset=utf-8"})
+
+
 class _ImgFluidInlineProcessor(ImageInlineProcessor):
 	"""
 	Markdown image processor to use bootstrap's ``img-fluid`` class.
