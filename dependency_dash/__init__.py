@@ -26,6 +26,11 @@ A fully Open Source dependency dashboard.
 #  OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+# 3rd party
+import restx_monkey as monkey
+
+monkey.patch_restx()
+
 # this package
 from dependency_dash import github, routes  # noqa: F401
 from dependency_dash._app import api, app

@@ -12,7 +12,7 @@ pybadges>=2.2.1
 pygments>=2.10.0
 pypi-json>=0.2.0
 requests>=2.26.0
+restx-monkey>=0.6.1
 setup-py-upgrade==1.2.1
 shippinglabel>=1.0.0
-werkzeug<2.2
 wtforms>=2.2.0
