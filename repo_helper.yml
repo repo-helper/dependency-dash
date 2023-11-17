@@ -17,10 +17,11 @@ enable_tests: false
 mypy_version: "0.910"
 
 python_versions:
- - '3.7'
  - '3.8'
  - '3.9'
- - 3.10-dev
+ - '3.10'
+ - '3.11'
+ - '3.12'
 
 platforms:
  - Linux
@@ -62,3 +63,5 @@ additional_ignore:
 
 tox_unmanaged:
  - testenv
+ - 'testenv:py313-dev'
+ - 'testenv:py312'
