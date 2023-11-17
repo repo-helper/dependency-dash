@@ -14,5 +14,6 @@ pypi-json>=0.2.0
 requests>=2.26.0
 restx-monkey>=0.6.1
 setup-py-upgrade==1.2.1
+setuptools>=68.2.2; python_version >= "3.12"
 shippinglabel>=1.0.0
 wtforms>=2.2.0

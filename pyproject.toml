@@ -66,7 +66,7 @@ show_error_codes = true
 incremental = false
 
 [tool.dep_checker]
-allowed_unused = [ "gunicorn", "pygments", "werkzeug",]
+allowed_unused = [ "gunicorn", "pygments", "setuptools",]
 
 [tool.snippet-fmt]
 directives = [ "code-block",]
