@@ -547,7 +547,7 @@ def iter_repos_for_user(
 	url = user_or_org._build_url("users", user_or_org.login, "repos")
 	params = {"type": "owner", "sort": "full_name", "direction": "asc", "per_page": 30, "page": int(page)}
 
-	yield from user_or_org._iter(30, url, ShortRepository, params)
+	yield from user_or_org._iter(30, url, ShortRepository, params)  # type: ignore[misc, arg-type]
 
 
 def get_requirements_from_github(
