@@ -1,4 +1,4 @@
-git+https://github.com/domdfcoding/github3.py@stubs
+git+https://github.com/domdfcoding/github3.py@stubs-v4
 python-dotenv
 types-requests
 types-Markdown
