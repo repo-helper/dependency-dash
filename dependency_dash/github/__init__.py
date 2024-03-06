@@ -52,6 +52,7 @@ from github3.repos import ShortRepository
 from github3.users import User
 from packaging.requirements import InvalidRequirement
 from packaging.version import InvalidVersion
+from pybadges import badge
 from shippinglabel.requirements import ComparableRequirement, parse_requirements
 
 # this package
@@ -414,6 +415,11 @@ def htmx_github_project(username: str, repository: str, branch: str) -> str:
 				)
 
 
+def _bad_repo_badge(reason: str) -> Response:
+	badge_svg = badge(left_text="repository", right_text=reason, right_color="silver")
+	return Response(badge_svg, content_type="image/svg+xml;charset=utf-8", status=404)
+
+
 @app.route("/github/<username>/<repository>/badge.svg")
 def badge_github_project(username: str, repository: str) -> Response:
 	"""
@@ -428,12 +434,13 @@ def badge_github_project(username: str, repository: str) -> Response:
 	try:
 		repo = GITHUB.repository(username, repository)
 	except github3.exceptions.NotFoundError:
-		return Response("Repository not found.", 404)
+		return _bad_repo_badge("not found")
 
 	try:
 		data = get_repo_requirements(repo.full_name, repo.default_branch)
 	except NotImplementedError:
-		return Response(render_template("no_supported_files.html"), 404)
+		return _bad_repo_badge("unsupported")
+
 	else:
 		all_requirements: List[ComparableRequirement] = []
 		for filename, requirements, invalid, include in data:
@@ -446,10 +453,7 @@ def badge_github_project(username: str, repository: str) -> Response:
 		if request.headers.get("If-None-Match") == etag:
 			resp = Response(status=HTTPStatus.NOT_MODIFIED)
 		else:
-			resp = Response(
-					make_badge(get_dependency_status(all_requirements)),
-					content_type="image/svg+xml;charset=utf-8"
-					)
+			resp = Response(badge_svg, content_type="image/svg+xml;charset=utf-8")
 
 		resp.headers["ETag"] = etag
 		resp.headers["Cache-Control"] = "max-age=600"
