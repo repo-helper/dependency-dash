@@ -55,4 +55,4 @@ known_third_party = [
     "werkzeug",
     "wtforms",
 ]
-known_first_party = "dependency_dash"
+known_first_party = [ "dependency_dash",]
