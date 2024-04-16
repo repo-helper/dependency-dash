@@ -10,13 +10,12 @@ readme = "README.rst"
 keywords = [ "dashboard", "dependency", "github", "requirement",]
 dynamic = [ "requires-python", "classifiers", "dependencies",]
 
+[project.license]
+file = "LICENSE"
+
 [[project.authors]]
 name = "Dominic Davis-Foster"
 email = "dominic@davis-foster.co.uk"
-
-
-[project.license]
-file = "LICENSE"
 
 [project.urls]
 Homepage = "https://github.com/repo-helper/dependency-dash"
@@ -68,14 +67,11 @@ incremental = false
 [tool.dep_checker]
 allowed_unused = [ "gunicorn", "pygments", "setuptools",]
 
-[tool.snippet-fmt]
-directives = [ "code-block",]
-
 [tool.dep_checker.name_mapping]
 github3-py = "github3"
 
-[tool.dependency-dash."requirements.txt"]
-order = 10
+[tool.snippet-fmt]
+directives = [ "code-block",]
 
 [tool.snippet-fmt.languages.python]
 reformat = true
@@ -86,3 +82,6 @@ reformat = true
 [tool.snippet-fmt.languages.ini]
 
 [tool.snippet-fmt.languages.json]
+
+[tool.dependency-dash."requirements.txt"]
+order = 10
