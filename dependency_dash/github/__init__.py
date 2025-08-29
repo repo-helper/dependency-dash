@@ -417,7 +417,7 @@ def htmx_github_project(username: str, repository: str, branch: str) -> str:
 
 def _bad_repo_badge(reason: str) -> Response:
 	badge_svg = badge(left_text="repository", right_text=reason, right_color="silver")
-	return Response(badge_svg, content_type="image/svg+xml;charset=utf-8", status=404)
+	return Response(badge_svg, content_type="image/svg+xml;charset=utf-8", status=200)
 
 
 @app.route("/github/<username>/<repository>/badge.svg")
