@@ -127,7 +127,7 @@ repos:
       entry: ./scripts/convert_images.sh
       files: ^dependency_dash/static/img/(cookies.jpg|not-found.png)$
       additional_dependencies:
-       - https://gitpkg.now.sh/repo-helper/squoosh/cli?dev
+       - https://github.com/repo-helper/squoosh/raw/refs/heads/cli-dist/squoosh-cli.tar.gz
 
  - repo: local
    hooks:
