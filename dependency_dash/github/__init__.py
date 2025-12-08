@@ -44,7 +44,7 @@ import github3
 import github3.repos.contents
 import platformdirs
 import requests
-import setup_py_upgrade  # type: ignore[import]
+import setup_py_upgrade  # type: ignore[import-untyped]
 from domdf_python_tools.paths import PathPlus
 from flask import Response, render_template, request
 from github3.orgs import Organization
@@ -214,7 +214,7 @@ def parse_setup_cfg(content: bytes) -> Tuple[Set[ComparableRequirement], List[st
 	options_section = parser["options"]
 
 	if "install_requires" in options_section:
-		dependencies = map(str.strip, options_section.get("install_requires").splitlines())
+		dependencies = map(str.strip, options_section["install_requires"].splitlines())
 	else:
 		raise SkipFile
 

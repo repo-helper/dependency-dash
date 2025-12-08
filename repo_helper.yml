@@ -14,7 +14,6 @@ use_whey: true
 enable_conda: false
 enable_docs: false
 enable_tests: false
-mypy_version: "0.910"
 
 python_versions:
  - '3.8'

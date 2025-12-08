@@ -37,8 +37,8 @@ from typing import Any, Dict, Optional
 # 3rd party
 from domdf_python_tools.paths import PathPlus
 from flask import Flask, Response, redirect, request, send_file, url_for
-from flask_restx import Api  # type: ignore[import]
-from wtforms import Form, StringField  # type: ignore[import]
+from flask_restx import Api  # type: ignore[import-untyped]
+from wtforms import Form, StringField  # type: ignore[import-untyped]
 
 __all__ = ["app", "api"]
 

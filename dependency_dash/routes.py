@@ -27,6 +27,7 @@ Flask HTTP routes.
 #
 
 # stdlib
+import re
 from typing import Dict, Tuple
 from urllib.parse import urljoin
 
@@ -90,7 +91,8 @@ class _ImgFluidInlineProcessor(ImageInlineProcessor):
 	Markdown image processor to use bootstrap's ``img-fluid`` class.
 	"""
 
-	def handleMatch(self, m, data):  # noqa: MAN001,MAN002
+	# TODO: mypy thinks the signature doesn't match the superclass but it matches what's in their docs and the pyright stubs.
+	def handleMatch(self, m: re.Match[str], data: str):  # type: ignore[override]  # noqa: MAN002
 		el, start, index = super().handleMatch(m, data)
 		assert el is not None
 		el.set("class", "img-fluid")  # type: ignore[union-attr]

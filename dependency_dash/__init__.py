@@ -27,7 +27,7 @@ A fully Open Source dependency dashboard.
 #
 
 # 3rd party
-import restx_monkey as monkey  # type: ignore[import]
+import restx_monkey as monkey  # type: ignore[import-untyped]
 
 monkey.patch_restx()
 

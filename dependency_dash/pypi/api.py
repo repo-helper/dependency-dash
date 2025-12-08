@@ -27,7 +27,7 @@ Common API Models.
 #
 
 # 3rd party
-from flask_restx import fields  # type: ignore[import]
+from flask_restx import fields  # type: ignore[import-untyped]
 
 # this package
 from dependency_dash._app import api

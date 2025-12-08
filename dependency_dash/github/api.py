@@ -34,7 +34,7 @@ from urllib.parse import urljoin
 # 3rd party
 import github3
 import github3.repos.contents
-from flask_restx import Namespace, Resource, fields  # type: ignore[import]
+from flask_restx import Namespace, Resource, fields  # type: ignore[import-untyped]
 
 # this package
 from dependency_dash._app import app
