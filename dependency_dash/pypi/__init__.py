@@ -212,7 +212,17 @@ def get_dependency_status(
 		try:
 			data = get_data(req.name)
 		except InvalidRequirement:
-			yield req, "invalid", data
+			yield req, "invalid",  {
+				"name": req.name,
+				"version": '',
+				"home_page": '',
+				"license": '',
+				"package_url": '',
+				"project_urls": {},
+				"all_versions": [],
+				"etag": '',
+				"last_modified": 0.0,
+				}
 			continue
 
 		latest_version = data["version"]
