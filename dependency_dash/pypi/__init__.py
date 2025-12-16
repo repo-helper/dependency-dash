@@ -208,17 +208,21 @@ def get_dependency_status(
 	"""
 
 	for req in sorted(requirements):
-		data = get_data(req.name)
+
+		try:
+			data = get_data(req.name)
+		except InvalidRequirement:
+			yield req, "invalid", data
+			continue
+
 		latest_version = data["version"]
 		version_specifier = req.specifier
 
 		if latest_version in version_specifier:
-			status = "up-to-date"
+			yield req, "up-to-date", data
 		else:
-			status = "outdated"
+			yield req, "outdated", data
 		# TODO: check against safety's DB. Probably need to enumerate releases from PyPI
-
-		yield req, status, data
 
 
 def make_badge(dependency_data: Iterator[Tuple[ComparableRequirement, str, Dict[str, Any]]]) -> str:
