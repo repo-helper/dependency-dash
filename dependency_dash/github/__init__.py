@@ -503,9 +503,7 @@ def htmx_github_user(username: str) -> str:
 			dependencies = list(get_dependency_status(all_requirements))
 			status_counts = Counter(map(itemgetter(1), dependencies))
 
-			if not status_counts or set(status_counts.keys()) == {"up-to-date"}:
-				return render_template("repository_status.html", status="up-to-date")
-			elif status_counts.get("insecure", 0):
+			if status_counts.get("insecure", 0):
 				return render_template(
 						"repository_status.html",
 						status=f'{status_counts["insecure"]} insecure',
@@ -517,6 +515,9 @@ def htmx_github_user(username: str) -> str:
 						status=f'{status_counts["outdated"]} outdated',
 						status_class="status-outdated"
 						)
+			else:
+				return render_template("repository_status.html", status="up-to-date")
+
 		except (InvalidRequirement, InvalidVersion):
 			return render_template("repository_status.html", status="invalid")
 
