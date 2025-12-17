@@ -248,8 +248,13 @@ def make_badge(dependency_data: Iterator[Tuple[ComparableRequirement, str, Dict[
 
 	if not status_counts or set(status_counts.keys()) == {"up-to-date"}:
 		return badge(left_text="dependencies", right_text="up-to-date", right_color="#82B805")
-	# TODO: insecure
-	else:
+	elif status_counts.get("insecure", 0):
+		return badge(
+				left_text="dependencies",
+				right_text=f'{status_counts["insecure"]} insecure',
+				right_color="red",
+				)
+	elif status_counts.get("outdated", 0):
 		return badge(
 				left_text="dependencies",
 				right_text=f'{status_counts["outdated"]} outdated',

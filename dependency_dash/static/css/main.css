@@ -51,6 +51,10 @@ h1, h2, h3, h4, h5, h6 {
 	background-color: #f0ad4e;
 }
 
+.status-insecure {
+	background-color: #cd2936;
+}
+
 .status-invalid {
 	background-color: rgb(145, 145, 145);
 }

@@ -505,8 +505,13 @@ def htmx_github_user(username: str) -> str:
 
 			if not status_counts or set(status_counts.keys()) == {"up-to-date"}:
 				return render_template("repository_status.html", status="up-to-date")
-			# TODO: insecure
-			else:
+			elif status_counts.get("insecure", 0):
+				return render_template(
+						"repository_status.html",
+						status=f'{status_counts["insecure"]} insecure',
+						status_class="status-insecure"
+						)
+			elif status_counts.get("outdated", 0):
 				return render_template(
 						"repository_status.html",
 						status=f'{status_counts["outdated"]} outdated',
