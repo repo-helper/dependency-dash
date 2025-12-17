@@ -40,7 +40,9 @@
 					<td>
 						<div class="d-flex flex-row align-items-center flex-wrap">
 							<div class="p-2">
-								<a href="{{ data["package_url"] }}" title="View on PyPI">{{ req.name }}</a>
+								{% if data["package_url"] %}<a href="{{ data["package_url"] }}" title="View on PyPI">{% endif %}
+									{{ req.name }}
+								{% if data["package_url"] %}</a>{% endif %}
 							</div>
 							<div class="p-2 ml-auto pkg-links">
 								{{ format_project_links(data["project_urls"])|safe }}
