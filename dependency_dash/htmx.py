@@ -41,12 +41,12 @@ __all__ = ["htmx"]
 
 
 def htmx(app: "Flask", rule: str, **options: Any) -> Callable:
-	"""
+	r"""
 	Construct a flask route at ``/htmx/<rule>`` for use with htmx_.
 
 	:param app:
 	:param rule: The URL rule string.
-	:param options: Extra options passed to the flask ``app.route`` decorator.
+	:param \*\*options: Extra options passed to the flask ``app.route`` decorator.
 	"""  # noqa: RST306
 
 	rule = urljoin("/htmx/", rule.lstrip('/'))

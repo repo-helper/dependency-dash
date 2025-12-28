@@ -79,7 +79,7 @@ class GitHubProjectAPI(Resource):
 	@api.response(200, "Success", github_project_model)
 	@api.response(404, "Repository not found or no supported files in repository.")
 	@api.doc(id="get_github_project")
-	def get(self, username: str, repository: str) -> Tuple[Dict, int]:
+	def get(self, username: str, repository: str) -> Tuple[Dict, int]:  # noqa: PRM002
 		"""
 		Returns a JSON response, giving the status for each of the repository's dependencies.
 		"""

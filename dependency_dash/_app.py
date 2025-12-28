@@ -83,7 +83,7 @@ def inject_constants() -> Dict[str, Any]:
 			"root_url": app.config["DD_ROOT_URL"],
 			"list": list,
 			"form": GoToForm(request.form),
-			"extra_stylesheets": []
+			"extra_stylesheets": [],
 			}
 
 	if has_vendor_stylesheet:

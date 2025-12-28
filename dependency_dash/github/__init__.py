@@ -75,7 +75,7 @@ __all__ = [
 		"parse_pyproject_toml",
 		"parse_requirements_txt",
 		"parse_setup_cfg",
-		"parse_setup_py"
+		"parse_setup_py",
 		]
 
 CACHE_DIR = PathPlus(platformdirs.user_cache_dir("dependency_dash")) / "github"
@@ -368,7 +368,7 @@ def github_project(username: str, repository: str) -> Response:
 						project_name=project_name,
 						description=f"Dependency status for https://github.com/{project_name}",
 						),
-				404
+				404,
 				)
 
 	return Response(
@@ -507,13 +507,13 @@ def htmx_github_user(username: str) -> str:
 				return render_template(
 						"repository_status.html",
 						status=f'{status_counts["insecure"]} insecure',
-						status_class="status-insecure"
+						status_class="status-insecure",
 						)
 			elif status_counts.get("outdated", 0):
 				return render_template(
 						"repository_status.html",
 						status=f'{status_counts["outdated"]} outdated',
-						status_class="status-outdated"
+						status_class="status-outdated",
 						)
 			else:
 				return render_template("repository_status.html", status="up-to-date")
