@@ -27,8 +27,7 @@ Flask HTTP routes.
 #
 
 # stdlib
-import re
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Match
 from urllib.parse import urljoin
 
 # 3rd party
@@ -92,7 +91,7 @@ class _ImgFluidInlineProcessor(ImageInlineProcessor):
 	"""
 
 	# TODO: mypy thinks the signature doesn't match the superclass but it matches what's in their docs and the pyright stubs.
-	def handleMatch(self, m: re.Match[str], data: str):  # type: ignore[override]  # noqa: MAN002
+	def handleMatch(self, m: Match[str], data: str):  # type: ignore[override]  # noqa: MAN002
 		el, start, index = super().handleMatch(m, data)
 		assert el is not None
 		el.set("class", "img-fluid")  # type: ignore[union-attr]
