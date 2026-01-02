@@ -27,7 +27,7 @@ Flask HTTP routes.
 #
 
 # stdlib
-from typing import Dict, Tuple, Match
+from typing import Dict, Match, Tuple
 from urllib.parse import urljoin
 
 # 3rd party
