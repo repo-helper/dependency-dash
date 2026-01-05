@@ -79,11 +79,9 @@ def format_project_links(project_urls: Dict[str, str]) -> str:
 				or parsed.netloc.endswith((".readthedocs.io", ".readthedocs.org", ".rtfd.io", ".rtfd.org"))
 				or parsed.netloc.startswith(("docs.", "documentation."))
 				):
-			icon = "fas fa-book"
-			continue  # TODO
+			continue  # TODO: icon = "fas fa-book"
 		elif name.startswith(("bug", "issue", "tracker", "report")):
-			icon = "fas fa-bug"
-			continue  # TODO
+			continue  # TODO: icon = "fas fa-bug"
 		elif parsed.netloc in ["github.com", "github.io"] or parsed.netloc.endswith((".github.com", ".github.io")):
 			icon = "fab fa-github"
 		elif parsed.netloc == "gitlab.com" or parsed.netloc.endswith(".gitlab.com"):

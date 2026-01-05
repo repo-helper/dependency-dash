@@ -33,7 +33,7 @@ import re
 from collections import Counter
 from configparser import ConfigParser
 from contextlib import suppress
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from http import HTTPStatus
 from operator import itemgetter
 from typing import Any, Callable, Dict, Iterator, List, Set, Tuple, Union
@@ -78,7 +78,16 @@ __all__ = [
 		"parse_setup_py",
 		]
 
+EXPIRES_FORMAT = "%a, %d %b %Y %H:%M:%S %Z"
 CACHE_DIR = PathPlus(platformdirs.user_cache_dir("dependency_dash")) / "github"
+
+
+def utcnow() -> datetime:
+	"""
+	Returns the current time in the UTC timezone.
+	"""
+
+	return datetime.now(timezone.utc)
 
 
 class SkipFile(Exception):
@@ -148,7 +157,7 @@ def parse_requirements_txt(content: bytes) -> Tuple[Set[ComparableRequirement], 
 	if not content:
 		return set(), []  # We assume the presence of an empty file indicates "no requirements"
 
-	requirements, comments, invalid = parse_requirements(
+	requirements, _, invalid = parse_requirements(
 		content.decode("UTF-8").splitlines(),
 		include_invalid=True,
 		normalize_func=str,
@@ -184,7 +193,7 @@ def parse_pyproject_toml(content: bytes) -> Tuple[Set[ComparableRequirement], Li
 	else:
 		raise SkipFile
 
-	requirements, comments, invalid_lines = parse_requirements(
+	requirements, _, invalid_lines = parse_requirements(
 		dependencies,
 		include_invalid=True,
 		normalize_func=str,
@@ -218,7 +227,7 @@ def parse_setup_cfg(content: bytes) -> Tuple[Set[ComparableRequirement], List[st
 	else:
 		raise SkipFile
 
-	requirements, comments, invalid_lines = parse_requirements(
+	requirements, _, invalid_lines = parse_requirements(
 		dependencies,
 		include_invalid=True,
 		normalize_func=str,
@@ -259,7 +268,7 @@ def parse_setup_py(content: bytes) -> Tuple[Set[ComparableRequirement], List[str
 	else:
 		raise SkipFile
 
-	requirements, comments, invalid_lines = parse_requirements(
+	requirements, _, invalid_lines = parse_requirements(
 		dependencies,
 		include_invalid=True,
 		normalize_func=str,
@@ -458,7 +467,7 @@ def badge_github_project(username: str, repository: str) -> Response:
 		resp.headers["ETag"] = etag
 		cache_duration = 1200
 		resp.headers["Cache-Control"] = f"max-age={cache_duration}"
-		expires = (datetime.utcnow() + timedelta(seconds=cache_duration)).strftime("%a, %d %b %Y %H:%M:%S GMT")
+		expires = (utcnow() + timedelta(seconds=cache_duration)).strftime("%a, %d %b %Y %H:%M:%S GMT")
 		resp.headers["Expires"] = expires
 		return resp
 
@@ -593,7 +602,7 @@ def get_requirements_from_github(
 			raise requests.HTTPError  # TODO: better error
 
 		etag = response.headers["etag"]
-		expires = datetime.strptime(response.headers["expires"], "%a, %d %b %Y %H:%M:%S %Z")
+		expires = datetime.strptime(response.headers["expires"], EXPIRES_FORMAT)
 		content = response.content
 		requirements, invalid_lines = parse_func(content)
 	else:
@@ -604,7 +613,7 @@ def get_requirements_from_github(
 		requirements = set(map(ComparableRequirement, requirements_block[:marker]))
 		invalid_lines = requirements_block[marker + 1:]
 
-		if expires > datetime.utcnow():
+		if expires > utcnow():
 			# Nothing changed
 			return requirements, invalid_lines
 		else:
@@ -617,7 +626,7 @@ def get_requirements_from_github(
 				requirements, invalid_lines = parse_func(content)
 
 			etag = response.headers["etag"]
-			expires = datetime.strptime(response.headers["expires"], "%a, %d %b %Y %H:%M:%S %Z")
+			expires = datetime.strptime(response.headers["expires"], EXPIRES_FORMAT)
 
 	data = [
 			etag,
@@ -660,7 +669,7 @@ def get_our_config(
 			raise requests.HTTPError  # TODO: better error
 
 		etag = response.headers["etag"]
-		expires = datetime.strptime(response.headers["expires"], "%a, %d %b %Y %H:%M:%S %Z")
+		expires = datetime.strptime(response.headers["expires"], EXPIRES_FORMAT)
 		config = dom_toml.loads(response.text)
 		if "dependency-dash" not in config.get("tool", {}):
 			raise KeyError
@@ -672,7 +681,7 @@ def get_our_config(
 		expires = datetime.fromisoformat(data["expires"])
 		files = data["files"]
 
-		if expires > datetime.utcnow():
+		if expires > utcnow():
 			# Nothing changed
 			return files
 		else:
@@ -687,7 +696,7 @@ def get_our_config(
 				files = config["tool"]["dependency-dash"]
 
 			etag = response.headers["etag"]
-			expires = datetime.strptime(response.headers["expires"], "%a, %d %b %Y %H:%M:%S %Z")
+			expires = datetime.strptime(response.headers["expires"], EXPIRES_FORMAT)
 
 	data = {
 			"etag": etag,
