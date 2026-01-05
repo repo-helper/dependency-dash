@@ -27,30 +27,6 @@ lines_between_types = 0
 use_parentheses = true
 remove_redundant_aliases = true
 default_section = "THIRDPARTY"
-known_third_party = [
-    "dom_toml",
-    "domdf_python_tools",
-    "flask",
-    "flask_restx",
-    "github3_py",
-    "gunicorn",
-    "jinja2",
-    "markdown",
-    "markupsafe",
-    "packaging",
-    "platformdirs",
-    "pybadges",
-    "pygments",
-    "pypi_json",
-    "requests",
-    "restx_monkey",
-    "setup_py_upgrade",
-    "setuptools",
-    "shippinglabel",
-    "typing_extensions",
-    "werkzeug",
-    "wtforms",
-]
 known_first_party = [ "dependency_dash",]
 
 [config]
