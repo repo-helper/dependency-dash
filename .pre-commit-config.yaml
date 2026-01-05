@@ -13,7 +13,7 @@ repos:
     - id: reformat-pyproject
 
  - repo: https://github.com/pre-commit/pre-commit-hooks
-   rev: v3.4.0
+   rev: v6.0.0
    hooks:
     - id: check-added-large-files
     - id: check-ast
@@ -62,7 +62,7 @@ repos:
     - id: rst-inline-touching-normal
 
  - repo: https://github.com/asottile/pyupgrade
-   rev: v3.3.0
+   rev: v3.21.2
    hooks:
     - id: pyupgrade
       args:
@@ -70,7 +70,7 @@ repos:
        - --keep-runtime-typing
 
  - repo: https://github.com/Lucas-C/pre-commit-hooks
-   rev: v1.5.1
+   rev: v1.5.5
    hooks:
     - id: remove-crlf
     - id: forbid-crlf
@@ -96,7 +96,7 @@ repos:
 # Custom hooks can be added below this comment
 
  - repo: https://github.com/awebdeveloper/pre-commit-stylelint
-   rev: 8f63da497580898a7e0ceef6bf9e72cc0af07828
+   rev: 0.0.2
    hooks:
     - id: stylelint
       additional_dependencies:
@@ -106,7 +106,7 @@ repos:
        - --fix
 
  - repo: https://github.com/pre-commit/mirrors-eslint
-   rev: v7.32.0
+   rev: v10.0.0-beta.0
    hooks:
     - id: eslint
       args:
