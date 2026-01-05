@@ -65,6 +65,9 @@ from dependency_dash.pypi import format_project_links, get_dependency_status, ma
 __all__ = [
 		"SkipFile",
 		"badge_github_project",
+		"get_our_config",
+		"get_parse_functions",
+		"get_parser_for_file",
 		"get_requirements_from_github",
 		"get_repo_requirements",
 		"github_project",
@@ -276,6 +279,73 @@ def parse_setup_py(content: bytes) -> Tuple[Set[ComparableRequirement], List[str
 	return requirements, invalid_lines
 
 
+Parser = Callable[[bytes], Tuple[Set[ComparableRequirement], List[str]]]
+ParserData = Tuple[Parser, str, bool]
+
+
+def get_parser_for_file(filename: str, file_config: Dict[str, Any]) -> ParserData:
+	"""
+	Returns the function to parse the file with the given name, detecting its format.
+
+	:param filename:
+	:param file_config:
+	"""
+
+	counts = file_config.get("include", True)
+
+	if "format" in file_config:
+		file_format = file_config["format"]
+	elif filename in {"pyproject.toml", "setup.cfg", "setup.py"}:
+		file_format = filename
+	else:
+		file_format = "requirements.txt"
+
+	if file_format == "pyproject.toml":
+		return (parse_pyproject_toml, filename, counts)
+	elif file_format == "setup.cfg":
+		return (parse_setup_cfg, filename, counts)
+	elif file_format == "setup.py":
+		return (parse_setup_py, filename, counts)
+	else:
+		return (parse_requirements_txt, filename, counts)
+	# TODO: error on unrecognised format?
+
+
+def get_parse_functions(repository_name: str, default_branch: str = "master") -> List[ParserData]:
+	"""
+	Returns a list of functions to parse requirements of the given repository.
+
+	The following files are searched, in order:
+
+	* ``requirements.txt``
+	* ``pyproject.toml``
+	* ``setup.cfg``
+	* ``setup.py``
+
+	:param repository_name: The repository's full name.
+	:param default_branch: The repository's default branch name.
+	"""
+
+	try:
+		files = get_our_config(repository_name, default_branch)
+	except (requests.HTTPError, KeyError):
+		return [
+				(parse_requirements_txt, "requirements.txt", True),
+				(parse_pyproject_toml, "pyproject.toml", True),
+				(parse_setup_cfg, "setup.cfg", True),
+				(parse_setup_py, "setup.py", True),
+				]
+
+	else:
+		lookup_map = []
+
+		# sort by "order" attribute
+		for filename, file_config in sorted(files.items(), key=lambda i: i[1].get("order", 0)):
+			lookup_map.append(get_parser_for_file(filename, file_config))
+
+		return lookup_map
+
+
 def get_repo_requirements(
 		repository_name: str,
 		default_branch: str = "master",
@@ -301,50 +371,15 @@ def get_repo_requirements(
 	* and whether the file's requirements should count towards the overall status.
 	"""
 
-	try:
-		files = get_our_config(repository_name, default_branch)
-	except (requests.HTTPError, KeyError):
-		lookup_map = [
-				(parse_requirements_txt, "requirements.txt", True),
-				(parse_pyproject_toml, "pyproject.toml", True),
-				(parse_setup_cfg, "setup.cfg", True),
-				(parse_setup_py, "setup.py", True),
-				]
-
-	else:
-		lookup_map = []
-
-		# sort by "order" attribute
-		for filename, file_config in sorted(files.items(), key=lambda i: i[1].get("order", 0)):
-			counts = file_config.get("include", True)
-
-			if "format" in file_config:
-				file_format = file_config["format"]
-			elif filename == "pyproject.toml":
-				file_format = "pyproject.toml"
-			elif filename == "setup.cfg":
-				file_format = "setup.cfg"
-			elif filename == "setup.py":
-				file_format = "setup.py"
-			else:
-				file_format = "requirements.txt"
-
-			if file_format == "pyproject.toml":
-				lookup_map.append((parse_pyproject_toml, filename, counts))
-			elif file_format == "setup.cfg":
-				lookup_map.append((parse_setup_cfg, filename, counts))
-			elif file_format == "setup.py":
-				lookup_map.append((parse_setup_py, filename, counts))
-			else:
-				lookup_map.append((parse_requirements_txt, filename, counts))
-			# TODO: error on unrecognised format?
-
 	output = []
 
-	for function, filename, counts in lookup_map:
+	for function, filename, counts in get_parse_functions(repository_name, default_branch):
 		try:
 			requirements, invalid_lines = get_requirements_from_github(
-				repository_name, default_branch, file=filename, parse_func=function,
+				repository_name,
+				default_branch,
+				file=filename,
+				parse_func=function,
 				)
 		except (requests.HTTPError, SkipFile):
 			continue
