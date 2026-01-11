@@ -85,7 +85,7 @@ dependency-dash
 	:alt: Maintenance
 
 .. |pypi-downloads| image:: https://img.shields.io/pypi/dm/dependency-dash
-	:target: https://pypi.org/project/dependency-dash/
+	:target: https://pypistats.org/packages/dependency-dash
 	:alt: PyPI - Downloads
 
 .. end shields
