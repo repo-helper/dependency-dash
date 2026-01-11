@@ -38,9 +38,10 @@ __all__ = [
 		]
 
 project_urls_model = api.model(
-		"Project_URLs", {
+		"Project_URLs",
+		{
 				'*': fields.String(example="https://github.com/python-coincidence/coverage_pyver_pragma"),
-				}
+				},
 		)
 
 requirement_data_model = api.model(
@@ -55,5 +56,5 @@ requirement_data_model = api.model(
 				"project_urls": fields.Nested(project_urls_model),
 				"all_versions": fields.List(fields.String(example="1.2.3")),
 				"current_version": fields.String(example="4.6.4"),
-				}
+				},
 		)

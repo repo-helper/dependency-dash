@@ -164,7 +164,7 @@ def parse_requirements_txt(content: bytes) -> Tuple[Set[ComparableRequirement], 
 		content.decode("UTF-8").splitlines(),
 		include_invalid=True,
 		normalize_func=str,
-		)
+	)
 
 	return requirements, invalid
 
@@ -200,7 +200,7 @@ def parse_pyproject_toml(content: bytes) -> Tuple[Set[ComparableRequirement], Li
 		dependencies,
 		include_invalid=True,
 		normalize_func=str,
-		)
+	)
 	return requirements, invalid_lines
 
 
@@ -234,7 +234,7 @@ def parse_setup_cfg(content: bytes) -> Tuple[Set[ComparableRequirement], List[st
 		dependencies,
 		include_invalid=True,
 		normalize_func=str,
-		)
+	)
 	return requirements, invalid_lines
 
 
@@ -275,7 +275,7 @@ def parse_setup_py(content: bytes) -> Tuple[Set[ComparableRequirement], List[str
 		dependencies,
 		include_invalid=True,
 		normalize_func=str,
-		)
+	)
 	return requirements, invalid_lines
 
 
@@ -380,7 +380,7 @@ def get_repo_requirements(
 				default_branch,
 				file=filename,
 				parse_func=function,
-				)
+			)
 		except (requests.HTTPError, SkipFile):
 			continue
 		else:
@@ -421,7 +421,7 @@ def github_project(username: str, repository: str) -> Response:
 					project_name=repo.full_name,
 					data_url=f"/htmx/github/{repo.full_name}/{repo.default_branch}/",
 					description=f"Dependency status for https://github.com/{repo.full_name}",
-					)
+					),
 			)
 
 

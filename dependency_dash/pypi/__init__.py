@@ -220,7 +220,7 @@ def get_dependency_status(
 				"all_versions": [],
 				"etag": '',
 				"last_modified": 0.0,
-				}
+			}
 			continue
 
 		latest_version = data["version"]

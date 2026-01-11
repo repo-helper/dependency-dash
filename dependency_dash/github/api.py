@@ -46,9 +46,12 @@ __all__ = ["GitHubProjectAPI", "api", "github_project_model"]
 
 api = Namespace("GitHub", path="/github", description="API for GitHub Repositories")
 
-github_project_model = api.model("GitHub_Project", {
-		'*': fields.List(fields.Nested(requirement_data_model)),
-		})
+github_project_model = api.model(
+		"GitHub_Project",
+		{
+				'*': fields.List(fields.Nested(requirement_data_model)),
+				},
+		)
 
 
 def error404(message: str) -> Tuple[Dict[str, str], int]:
@@ -61,7 +64,7 @@ def error404(message: str) -> Tuple[Dict[str, str], int]:
 	return {
 		"message": str(message),
 		"documentation_url": urljoin(app.config["DD_ROOT_URL"], "/api#/GitHub/get_github_project"),
-		}, 404
+	}, 404
 
 
 @api.route("/<username>/<repository>/")
@@ -69,7 +72,7 @@ def error404(message: str) -> Tuple[Dict[str, str], int]:
 		params={
 				"username": "The GitHub user / organization which owns the repository.",
 				"repository": "The GitHub repository.",
-				}
+				},
 		)
 class GitHubProjectAPI(Resource):
 	"""
@@ -119,4 +122,4 @@ def api_error_404(path: str) -> Tuple[Dict[str, str], int]:
 	return {
 		"message": "Not Found",
 		"documentation_url": urljoin(app.config["DD_ROOT_URL"], "/api"),
-		}, 404
+	}, 404
