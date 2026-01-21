@@ -36,6 +36,7 @@ from contextlib import suppress
 from datetime import datetime, timedelta, timezone
 from http import HTTPStatus
 from operator import itemgetter
+from sys import intern
 from typing import Any, Callable, Dict, Iterator, List, Set, Tuple, Union
 
 # 3rd party
@@ -83,6 +84,13 @@ __all__ = [
 
 EXPIRES_FORMAT = "%a, %d %b %Y %H:%M:%S %Z"
 CACHE_DIR = PathPlus(platformdirs.user_cache_dir("dependency_dash")) / "github"
+
+SETUP_PY = intern("setup.py")
+SETUP_CFG = intern("setup.cfg")
+PYPROJECT_TOML = intern("pyproject.toml")
+REQUIREMENTS_TXT = intern("requirements.txt")
+
+STATUS_TEMPLATE_FILE = intern("repository_status.html")
 
 
 def utcnow() -> datetime:
@@ -253,7 +261,7 @@ def parse_setup_py(content: bytes) -> Tuple[Set[ComparableRequirement], List[str
 		raise SkipFile
 
 	try:
-		tree = ast.parse(content, filename="setup.py")
+		tree = ast.parse(content, filename=SETUP_PY)
 	except SyntaxError:
 		raise SkipFile
 
@@ -295,16 +303,16 @@ def get_parser_for_file(filename: str, file_config: Dict[str, Any]) -> ParserDat
 
 	if "format" in file_config:
 		file_format = file_config["format"]
-	elif filename in {"pyproject.toml", "setup.cfg", "setup.py"}:
+	elif filename in {PYPROJECT_TOML, SETUP_CFG, SETUP_PY}:
 		file_format = filename
 	else:
-		file_format = "requirements.txt"
+		file_format = REQUIREMENTS_TXT
 
-	if file_format == "pyproject.toml":
+	if file_format == PYPROJECT_TOML:
 		return (parse_pyproject_toml, filename, counts)
-	elif file_format == "setup.cfg":
+	elif file_format == SETUP_CFG:
 		return (parse_setup_cfg, filename, counts)
-	elif file_format == "setup.py":
+	elif file_format == SETUP_PY:
 		return (parse_setup_py, filename, counts)
 	else:
 		return (parse_requirements_txt, filename, counts)
@@ -330,10 +338,10 @@ def get_parse_functions(repository_name: str, default_branch: str = "master") ->
 		files = get_our_config(repository_name, default_branch)
 	except (requests.HTTPError, KeyError):
 		return [
-				(parse_requirements_txt, "requirements.txt", True),
-				(parse_pyproject_toml, "pyproject.toml", True),
-				(parse_setup_cfg, "setup.cfg", True),
-				(parse_setup_py, "setup.py", True),
+				(parse_requirements_txt, REQUIREMENTS_TXT, True),
+				(parse_pyproject_toml, PYPROJECT_TOML, True),
+				(parse_setup_cfg, SETUP_CFG, True),
+				(parse_setup_py, SETUP_PY, True),
 				]
 
 	else:
@@ -536,7 +544,7 @@ def htmx_github_user(username: str) -> str:
 		try:
 			data = get_repo_requirements(repo.full_name, repo.default_branch)
 		except NotImplementedError:
-			return render_template("repository_status.html", status="unsupported")
+			return render_template(STATUS_TEMPLATE_FILE, status="unsupported")
 
 		try:
 			all_requirements: List[ComparableRequirement] = []
@@ -549,21 +557,21 @@ def htmx_github_user(username: str) -> str:
 
 			if status_counts.get("insecure", 0):
 				return render_template(
-						"repository_status.html",
+						STATUS_TEMPLATE_FILE,
 						status=f'{status_counts["insecure"]} insecure',
 						status_class="status-insecure",
 						)
 			elif status_counts.get("outdated", 0):
 				return render_template(
-						"repository_status.html",
+						STATUS_TEMPLATE_FILE,
 						status=f'{status_counts["outdated"]} outdated',
 						status_class="status-outdated",
 						)
 			else:
-				return render_template("repository_status.html", status="up-to-date")
+				return render_template(STATUS_TEMPLATE_FILE, status="up-to-date")
 
 		except (InvalidRequirement, InvalidVersion):
-			return render_template("repository_status.html", status="invalid")
+			return render_template(STATUS_TEMPLATE_FILE, status="invalid")
 
 	page = int(request.args.get("page", 1))
 
