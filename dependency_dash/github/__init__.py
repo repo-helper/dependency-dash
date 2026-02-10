@@ -83,7 +83,7 @@ __all__ = [
 		"parse_setup_py",
 		]
 
-EXPIRES_FORMAT = "%a, %d %b %Y %H:%M:%S %Z"
+EXPIRES_FORMAT = "%a, %d %b %Y %H:%M:%S %z"
 CACHE_DIR = PathPlus(platformdirs.user_cache_dir("dependency_dash")) / "github"
 
 SETUP_PY = intern("setup.py")
@@ -620,6 +620,15 @@ def iter_repos_for_user(
 	yield from user_or_org._iter(30, url, ShortRepository, params)  # type: ignore[misc, arg-type]
 
 
+def strptime(data_string: str, format: str = EXPIRES_FORMAT) -> datetime:
+	if "GMT" in data_string:
+		data_string = data_string.replace("GMT", "+00:00")
+	elif "UTC" in data_string:
+		data_string = data_string.replace("UTC", "+00:00")
+
+	return datetime.strptime(data_string, format)
+
+
 def get_requirements_from_github(
 		repository: str,
 		default_branch: str,
@@ -652,7 +661,7 @@ def get_requirements_from_github(
 			raise requests.HTTPError  # TODO: better error
 
 		etag = response.headers["etag"]
-		expires = datetime.strptime(response.headers["expires"], EXPIRES_FORMAT)
+		expires = strptime(response.headers["expires"], EXPIRES_FORMAT)
 		content = response.content
 		requirements, invalid_lines = parse_func(content)
 	else:
@@ -676,7 +685,7 @@ def get_requirements_from_github(
 				requirements, invalid_lines = parse_func(content)
 
 			etag = response.headers["etag"]
-			expires = datetime.strptime(response.headers["expires"], EXPIRES_FORMAT)
+			expires = strptime(response.headers["expires"], EXPIRES_FORMAT)
 
 	data = [
 			etag,
@@ -719,7 +728,7 @@ def get_our_config(
 			raise requests.HTTPError  # TODO: better error
 
 		etag = response.headers["etag"]
-		expires = datetime.strptime(response.headers["expires"], EXPIRES_FORMAT)
+		expires = strptime(response.headers["expires"], EXPIRES_FORMAT)
 		config = dom_toml.loads(response.text)
 		if "dependency-dash" not in config.get("tool", {}):
 			raise KeyError
@@ -746,7 +755,7 @@ def get_our_config(
 				files = config["tool"]["dependency-dash"]
 
 			etag = response.headers["etag"]
-			expires = datetime.strptime(response.headers["expires"], EXPIRES_FORMAT)
+			expires = strptime(response.headers["expires"], EXPIRES_FORMAT)
 
 	data = {
 			"etag": etag,
