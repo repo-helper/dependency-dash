@@ -127,17 +127,3 @@ Then run the app using a `WSGI server`_ such as Gunicorn:
 
 .. _create a personal access token: https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token
 .. _WSGI server: https://flask.palletsprojects.com/en/2.0.x/deploying/wsgi-standalone/
-
-
-About
-------
-
-
-.. image:: https://web-platforms.sfo2.digitaloceanspaces.com/WWW/Badge%203.svg
-	:target: https://www.digitalocean.com/?refcode=10ebc51ba008&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=badge
-	:alt: DigitalOcean Referral Badge
-
-
-The deployed version of this app runs in a dokku_ instance hosted on DigitalOcean. It was previously hosted on Heroku.
-
-.. _dokku: https://dokku.com/
