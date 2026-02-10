@@ -226,9 +226,12 @@ def get_dependency_status(
 
 		latest_version = data["version"]
 		version_specifier = req.specifier
+		latest_prerelease = max(map(Version, data["all_versions"]))
 
 		if latest_version in version_specifier:
 			yield req, "up-to-date", data
+		elif latest_prerelease in version_specifier:
+			yield req, "prerelease", data
 		else:
 			yield req, "outdated", data
 		# TODO: check against safety's DB. Probably need to enumerate releases from PyPI

@@ -38,7 +38,7 @@ h1, h2, h3, h4, h5, h6 {
 	margin-right: auto;
 }
 
-.status-up-to-date, .status-outdated, .status-invalid, .status-unsupported {
+.status-up-to-date, .status-outdated,  .status-prerelease, .status-invalid, .status-unsupported {
 	padding: 10px;
 	text-align: center;
 }
@@ -49,6 +49,10 @@ h1, h2, h3, h4, h5, h6 {
 
 .status-outdated {
 	background-color: #f0ad4e;
+}
+
+.status-prerelease {
+	background-color: #7cadf7;
 }
 
 .status-insecure {

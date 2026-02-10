@@ -568,6 +568,12 @@ def htmx_github_user(username: str) -> str:
 						status=f'{status_counts["outdated"]} outdated',
 						status_class="status-outdated",
 						)
+			elif status_counts.get("prerelease", 0):
+				return render_template(
+						STATUS_TEMPLATE_FILE,
+						status=f'{status_counts["prerelease"]} prerelease',
+						status_class="status-prerelease",
+						)
 			else:
 				return render_template(STATUS_TEMPLATE_FILE, status="up-to-date")
 
