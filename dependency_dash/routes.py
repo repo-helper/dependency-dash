@@ -27,7 +27,7 @@ Flask HTTP routes.
 #
 
 # stdlib
-from typing import Dict, Match, Tuple
+from re import Match
 from urllib.parse import urljoin
 
 # 3rd party
@@ -56,7 +56,7 @@ def get_canonical_url(request: Request) -> str:
 	return urljoin(app.config["DD_ROOT_URL"], request.path)
 
 
-def canonical_url_header(request: Request) -> Dict[str, str]:
+def canonical_url_header(request: Request) -> dict[str, str]:
 	canonical_url = get_canonical_url(request)
 	return {"Link": f'<{canonical_url}>; rel="canonical"'}
 
@@ -177,7 +177,7 @@ def search() -> Response:
 
 
 @app.errorhandler(404)
-def page_not_found(e: Exception) -> Tuple[str, int]:
+def page_not_found(e: Exception) -> tuple[str, int]:
 	"""
 	Route for HTTP 404 errors.
 
@@ -188,7 +188,7 @@ def page_not_found(e: Exception) -> Tuple[str, int]:
 
 
 @app.errorhandler(500)
-def server_error(e: Exception) -> Tuple[str, int]:
+def server_error(e: Exception) -> tuple[str, int]:
 	"""
 	Route for HTTP 500 errors.
 

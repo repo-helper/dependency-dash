@@ -31,13 +31,14 @@ import ast
 import hashlib
 import re
 from collections import Counter
+from collections.abc import Iterator
 from configparser import ConfigParser
 from contextlib import suppress
 from datetime import datetime, timedelta, timezone
 from http import HTTPStatus
 from operator import itemgetter
 from sys import intern
-from typing import Any, Callable, Dict, Iterator, List, Set, Tuple, Union
+from typing import Any, Callable, Union
 
 # 3rd party
 import dom_toml
@@ -111,7 +112,7 @@ class SetupPyNodeVisitor(setup_py_upgrade.Visitor):
 
 	def __init__(self):
 		super().__init__()
-		self._variables: Dict[str, Any] = {}
+		self._variables: dict[str, Any] = {}
 
 	def visit_Assign(self, node: ast.Assign) -> Any:
 		# Can't understand updates to the variable after assignment.
@@ -156,7 +157,7 @@ class SetupPyNodeVisitor(setup_py_upgrade.Visitor):
 		self.generic_visit(node)
 
 
-def parse_requirements_txt(content: bytes) -> Tuple[Set[ComparableRequirement], List[str]]:
+def parse_requirements_txt(content: bytes) -> tuple[set[ComparableRequirement], list[str]]:
 	"""
 	Parse the given ``requirements.txt`` content.
 
@@ -177,7 +178,7 @@ def parse_requirements_txt(content: bytes) -> Tuple[Set[ComparableRequirement], 
 	return requirements, invalid
 
 
-def parse_pyproject_toml(content: bytes) -> Tuple[Set[ComparableRequirement], List[str]]:
+def parse_pyproject_toml(content: bytes) -> tuple[set[ComparableRequirement], list[str]]:
 	"""
 	Parse the given ``pyproject.toml`` content.
 
@@ -212,7 +213,7 @@ def parse_pyproject_toml(content: bytes) -> Tuple[Set[ComparableRequirement], Li
 	return requirements, invalid_lines
 
 
-def parse_setup_cfg(content: bytes) -> Tuple[Set[ComparableRequirement], List[str]]:
+def parse_setup_cfg(content: bytes) -> tuple[set[ComparableRequirement], list[str]]:
 	"""
 	Parse the given ``setup.cfg`` content.
 
@@ -246,7 +247,7 @@ def parse_setup_cfg(content: bytes) -> Tuple[Set[ComparableRequirement], List[st
 	return requirements, invalid_lines
 
 
-def parse_setup_py(content: bytes) -> Tuple[Set[ComparableRequirement], List[str]]:
+def parse_setup_py(content: bytes) -> tuple[set[ComparableRequirement], list[str]]:
 	"""
 	Parse the given ``setup.cfg`` content.
 
@@ -287,11 +288,11 @@ def parse_setup_py(content: bytes) -> Tuple[Set[ComparableRequirement], List[str
 	return requirements, invalid_lines
 
 
-Parser = Callable[[bytes], Tuple[Set[ComparableRequirement], List[str]]]
-ParserData = Tuple[Parser, str, bool]
+Parser = Callable[[bytes], tuple[set[ComparableRequirement], list[str]]]
+ParserData = tuple[Parser, str, bool]
 
 
-def get_parser_for_file(filename: str, file_config: Dict[str, Any]) -> ParserData:
+def get_parser_for_file(filename: str, file_config: dict[str, Any]) -> ParserData:
 	"""
 	Returns the function to parse the file with the given name, detecting its format.
 
@@ -319,7 +320,7 @@ def get_parser_for_file(filename: str, file_config: Dict[str, Any]) -> ParserDat
 	# TODO: error on unrecognised format?
 
 
-def get_parse_functions(repository_name: str, default_branch: str = "master") -> List[ParserData]:
+def get_parse_functions(repository_name: str, default_branch: str = "master") -> list[ParserData]:
 	"""
 	Returns a list of functions to parse requirements of the given repository.
 
@@ -357,7 +358,7 @@ def get_parse_functions(repository_name: str, default_branch: str = "master") ->
 def get_repo_requirements(
 		repository_name: str,
 		default_branch: str = "master",
-		) -> List[Tuple[str, Set[ComparableRequirement], List[str], bool]]:
+		) -> list[tuple[str, set[ComparableRequirement], list[str], bool]]:
 	"""
 	Returns the requirements specified for the given repository.
 
@@ -494,7 +495,7 @@ def badge_github_project(username: str, repository: str) -> Response:
 		return _bad_repo_badge("unsupported")
 
 	else:
-		all_requirements: List[ComparableRequirement] = []
+		all_requirements: list[ComparableRequirement] = []
 		for filename, requirements, invalid, include in data:
 			if include:
 				all_requirements.extend(requirements)
@@ -547,7 +548,7 @@ def htmx_github_user(username: str) -> str:
 			return render_template(STATUS_TEMPLATE_FILE, status="unsupported")
 
 		try:
-			all_requirements: List[ComparableRequirement] = []
+			all_requirements: list[ComparableRequirement] = []
 			for filename, requirements, invalid, include in data:
 				if include:
 					all_requirements.extend(requirements)
@@ -617,8 +618,8 @@ def get_requirements_from_github(
 		repository: str,
 		default_branch: str,
 		file: str,
-		parse_func: Callable[[bytes], Tuple[Set[ComparableRequirement], List[str]]],
-		) -> Tuple[Set[ComparableRequirement], List[str]]:
+		parse_func: Callable[[bytes], tuple[set[ComparableRequirement], list[str]]],
+		) -> tuple[set[ComparableRequirement], list[str]]:
 	"""
 	Download a file from GitHub, and parse requirements from it.
 
@@ -638,7 +639,7 @@ def get_requirements_from_github(
 	expires: datetime
 
 	try:
-		data: List[str] = datafile.read_lines()
+		data: list[str] = datafile.read_lines()
 	except FileNotFoundError:
 		response = requests.get(url, timeout=10)
 		if response.status_code != 200:
@@ -685,7 +686,7 @@ def get_requirements_from_github(
 def get_our_config(
 		repository: str,
 		default_branch: str,
-		) -> Dict[str, Dict[str, Any]]:
+		) -> dict[str, dict[str, Any]]:
 	"""
 	Parse our config from the ``pyproject.toml`` file from GitHub.
 
@@ -705,7 +706,7 @@ def get_our_config(
 	expires: datetime
 
 	try:
-		data: Dict[str, Any] = datafile.load_json()
+		data: dict[str, Any] = datafile.load_json()
 	except FileNotFoundError:
 		response = requests.get(url, timeout=10)
 		if response.status_code != 200:

@@ -54,7 +54,7 @@ github_project_model = api.model(
 		)
 
 
-def error404(message: str) -> Tuple[Dict[str, str], int]:
+def error404(message: str) -> tuple[dict[str, str], int]:
 	"""
 	Raise a HTTP 404 error, with a link to the documentation.
 
@@ -82,7 +82,7 @@ class GitHubProjectAPI(Resource):
 	@api.response(200, "Success", github_project_model)
 	@api.response(404, "Repository not found or no supported files in repository.")
 	@api.doc(id="get_github_project")
-	def get(self, username: str, repository: str) -> Tuple[Dict, int]:  # noqa: PRM002
+	def get(self, username: str, repository: str) -> tuple[dict, int]:  # noqa: PRM002
 		"""
 		Returns a JSON response, giving the status for each of the repository's dependencies.
 		"""
@@ -118,7 +118,7 @@ class GitHubProjectAPI(Resource):
 
 
 @app.route("/api/<path:path>")
-def api_error_404(path: str) -> Tuple[Dict[str, str], int]:
+def api_error_404(path: str) -> tuple[dict[str, str], int]:
 	return {
 		"message": "Not Found",
 		"documentation_url": urljoin(app.config["DD_ROOT_URL"], "/api"),

@@ -77,7 +77,7 @@ else:
 
 
 @app.context_processor
-def inject_constants() -> Dict[str, Any]:
+def inject_constants() -> dict[str, Any]:
 	constants = {
 			"show_sidebar": False,
 			"root_url": app.config["DD_ROOT_URL"],
@@ -103,8 +103,8 @@ def https_redirect() -> Optional[Response]:
 	if request.scheme != "http":
 		return None
 
-	view_args: Dict[str, Any] = request.view_args or {}
-	args: Dict[str, Any] = dict(request.args or {})
+	view_args: dict[str, Any] = request.view_args or {}
+	args: dict[str, Any] = dict(request.args or {})
 
 	retval = redirect(
 			url_for(

@@ -29,9 +29,10 @@ Retrieve and cache data from PyPI.
 # stdlib
 import datetime
 from collections import Counter
+from collections.abc import Iterable, Iterator
 from email.utils import parsedate_to_datetime
 from operator import itemgetter
-from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple
+from typing import Any, Optional
 from urllib.parse import urlparse
 
 # 3rd party
@@ -51,7 +52,7 @@ __all__ = ["format_project_links", "get_data", "get_dependency_status", "make_ba
 CACHE_DIR = PathPlus(platformdirs.user_cache_dir("dependency_dash")) / "pypi"
 
 
-def format_project_links(project_urls: Dict[str, str]) -> str:
+def format_project_links(project_urls: dict[str, str]) -> str:
 	"""
 	Format the project's links (homepage, GitHub etc.) with hyperlinks and icons.
 
@@ -60,7 +61,7 @@ def format_project_links(project_urls: Dict[str, str]) -> str:
 	:param project_urls:
 	"""
 
-	links: Dict[str, str] = {}
+	links: dict[str, str] = {}
 	if project_urls is None:
 		return ''
 
@@ -96,7 +97,7 @@ def format_project_links(project_urls: Dict[str, str]) -> str:
 	return ''.join(map(itemgetter(1), sorted(links.items(), key=lambda t: t[0].split()[1])))
 
 
-def _sort_versions(*versions: str) -> List[str]:
+def _sort_versions(*versions: str) -> list[str]:
 
 	for_sort = []
 
@@ -111,7 +112,7 @@ def _sort_versions(*versions: str) -> List[str]:
 	return [v[0] for v in sorted(for_sort, key=itemgetter(1))]
 
 
-def get_data(project_name: str) -> Dict[str, Any]:
+def get_data(project_name: str) -> dict[str, Any]:
 	"""
 	Obtain metadata for ``project_name`` from PyPI.
 
@@ -126,8 +127,8 @@ def get_data(project_name: str) -> Dict[str, Any]:
 
 	def get_updated_data(
 			etag: Optional[str] = None,
-			stale_data: Optional[Dict[str, Any]] = None,
-			) -> Dict[str, Any]:
+			stale_data: Optional[dict[str, Any]] = None,
+			) -> dict[str, Any]:
 		with PyPIJSON() as client:
 			query_url = client.endpoint / project_name / "json"
 
@@ -191,7 +192,7 @@ def get_data(project_name: str) -> Dict[str, Any]:
 
 def get_dependency_status(
 		requirements: Iterable[ComparableRequirement],
-		) -> Iterator[Tuple[ComparableRequirement, str, Dict[str, Any]]]:
+		) -> Iterator[tuple[ComparableRequirement, str, dict[str, Any]]]:
 	# TODO: TypedDict
 	"""
 	For the given requirements, determine whether it is up-to-date.
@@ -233,7 +234,7 @@ def get_dependency_status(
 		# TODO: check against safety's DB. Probably need to enumerate releases from PyPI
 
 
-def make_badge(dependency_data: Iterator[Tuple[ComparableRequirement, str, Dict[str, Any]]]) -> str:
+def make_badge(dependency_data: Iterator[tuple[ComparableRequirement, str, dict[str, Any]]]) -> str:
 	"""
 	Construct a badge from the given dependency data.
 
