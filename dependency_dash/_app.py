@@ -32,7 +32,7 @@ Don't import from here; import directly from ``dependency_dash`` itself.
 import mimetypes
 import os
 from http import HTTPStatus
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 # 3rd party
 from domdf_python_tools.paths import PathPlus

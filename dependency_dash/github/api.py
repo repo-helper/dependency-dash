@@ -28,12 +28,10 @@ REST API for GitHub backend.
 
 # stdlib
 from collections import defaultdict
-from typing import Dict, Tuple
 from urllib.parse import urljoin
 
 # 3rd party
 import github3
-import github3.repos.contents
 from flask_restx import Namespace, Resource, fields  # type: ignore[import-untyped]
 
 # this package

@@ -620,7 +620,7 @@ def iter_repos_for_user(
 	yield from user_or_org._iter(30, url, ShortRepository, params)  # type: ignore[misc, arg-type]
 
 
-def strptime(data_string: str, format: str = EXPIRES_FORMAT) -> datetime:
+def strptime(data_string: str, format: str = EXPIRES_FORMAT) -> datetime:  # noqa: A002  # pylint: disable=redefined-builtin
 	if "GMT" in data_string:
 		data_string = data_string.replace("GMT", "+00:00")
 	elif "UTC" in data_string:
