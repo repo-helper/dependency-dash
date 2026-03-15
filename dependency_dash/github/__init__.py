@@ -44,7 +44,6 @@ from urllib.parse import urlparse
 # 3rd party
 import dom_toml
 import github3
-import github3.repos.contents
 import platformdirs
 import requests
 import setup_py_upgrade  # type: ignore[import-untyped]
