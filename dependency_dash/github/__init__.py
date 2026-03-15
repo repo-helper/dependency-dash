@@ -29,12 +29,11 @@ GitHub backend.
 # stdlib
 import ast
 import hashlib
-import re
 from collections import Counter
 from collections.abc import Iterator
 from configparser import ConfigParser
 from contextlib import suppress
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 from http import HTTPStatus
 from operator import itemgetter
 from sys import intern
@@ -64,6 +63,7 @@ from dependency_dash.github._env import GITHUB
 from dependency_dash.github.api import GitHubProjectAPI  # noqa: F401
 from dependency_dash.htmx import htmx
 from dependency_dash.pypi import format_project_links, get_dependency_status, make_badge
+from dependency_dash.utils import _normalize, strptime, utcnow
 
 __all__ = [
 		"SkipFile",
@@ -94,14 +94,6 @@ PYPROJECT_TOML = intern("pyproject.toml")
 REQUIREMENTS_TXT = intern("requirements.txt")
 
 STATUS_TEMPLATE_FILE = intern("repository_status.html")
-
-
-def utcnow() -> datetime:
-	"""
-	Returns the current time in the UTC timezone.
-	"""
-
-	return datetime.now(timezone.utc)
 
 
 class SkipFile(Exception):
@@ -436,11 +428,11 @@ def github_project(username: str, repository: str) -> Response:
 			)
 
 
-_normalize_pattern = re.compile(r"\W+")
-
-
-def _normalize(name: str) -> str:
-	return _normalize_pattern.sub('-', name)
+def _format_internal_link(req: ComparableRequirement, data: dict[str, Any]) -> str:
+	if data["dependency_dash_url"]:
+		return f'<a href="{data["dependency_dash_url"]}" title="View Dependencies">{req.name}</a>'
+	else:
+		return req.name
 
 
 @htmx(app, "/github/<username>/<repository>/<branch>/")
@@ -467,6 +459,7 @@ def htmx_github_project(username: str, repository: str, branch: str) -> str:
 				format_project_links=format_project_links,
 				make_badge=make_badge,
 				normalize=_normalize,
+				format_internal_link=_format_internal_link,
 				)
 
 
@@ -620,15 +613,6 @@ def iter_repos_for_user(
 	params = {"type": "owner", "sort": "full_name", "direction": "asc", "per_page": 30, "page": int(page)}
 
 	yield from user_or_org._iter(30, url, ShortRepository, params)  # type: ignore[misc, arg-type]
-
-
-def strptime(data_string: str, format: str = EXPIRES_FORMAT) -> datetime:  # noqa: A002  # pylint: disable=redefined-builtin
-	if "GMT" in data_string:
-		data_string = data_string.replace("GMT", "+00:00")
-	elif "UTC" in data_string:
-		data_string = data_string.replace("UTC", "+00:00")
-
-	return datetime.strptime(data_string, format)
 
 
 def get_requirements_from_github(

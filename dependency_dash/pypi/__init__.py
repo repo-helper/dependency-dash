@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-#  pypi.py
+#  pypi/__init__.py
 """
 Retrieve and cache data from PyPI.
 """
@@ -28,6 +28,7 @@ Retrieve and cache data from PyPI.
 
 # stdlib
 import datetime
+import os
 from collections import Counter
 from collections.abc import Iterable, Iterator
 from email.utils import parsedate_to_datetime
@@ -39,20 +40,29 @@ from urllib.parse import urlparse
 import platformdirs
 import requests
 from domdf_python_tools.paths import PathPlus
-from flask import render_template
+from flask import Response, render_template
 from packaging.requirements import InvalidRequirement
+from packaging.tags import generic_tags
 from packaging.version import InvalidVersion, Version
 from pybadges import badge
 from pypi_json import ProjectMetadata, PyPIJSON
+from remote_wheel import RemoteWheelDistribution
 from shippinglabel import normalize
 from shippinglabel.requirements import ComparableRequirement
+
+# this package
+from dependency_dash._app import app
+from dependency_dash.htmx import htmx
 
 __all__ = [
 		"format_project_links",
 		"get_data",
 		"get_dependency_dash_url",
 		"get_dependency_status",
+		"get_package_requirements",
+		"htmx_pypi_package",
 		"make_badge",
+		"pypi_package",
 		]
 
 CACHE_DIR = PathPlus(platformdirs.user_cache_dir("dependency_dash")) / "pypi"
@@ -299,3 +309,102 @@ def make_badge(dependency_data: Iterator[tuple[ComparableRequirement, str, dict[
 				)
 	else:
 		return badge(left_text="dependencies", right_text="up-to-date", right_color="#82B805")
+
+
+@app.route("/pypi/<name>")
+def pypi_package(name: str) -> Response:
+	"""
+	Route for displaying information about a single pypi package.
+
+	:param name: The name of the package.
+	"""
+
+	project_name = normalize(name)
+
+	with PyPIJSON() as client:
+		try:
+			metadata = client.get_metadata(project_name)
+
+		except InvalidRequirement:
+			return Response(
+					render_template(
+							"pypi_package_404.html",
+							project_name=project_name,
+							description=f"Dependency status for https://pypi.org/project/{project_name}",
+							),
+					404,
+					)
+
+	return Response(
+			render_template(
+					"pypi_package.html",
+					project_name=metadata.name,
+					data_url=f"/htmx/pypi/{metadata.name}/",
+					description=f"Dependency status for https://pypi.org/project/{metadata.name}",
+					),
+			)
+
+
+def _format_internal_link(req: ComparableRequirement, data: dict[str, Any]) -> str:
+	return f'<a href="/pypi/{normalize(req.name)}" title="View Dependencies">{req.name}</a>'
+
+
+@htmx(app, "/pypi/<name>/")
+def htmx_pypi_package(name: str) -> str:
+	"""
+	HTMX callback for obtaining the requirements table for the given PyPI package.
+
+	:param name: The package name.
+	"""
+
+	try:
+		data = get_package_requirements(name)
+	except NotImplementedError:
+		return render_template("no_supported_files.html")
+	else:
+		return render_template(
+				"dependency_table.html",
+				data=data,
+				get_dependency_status=get_dependency_status,
+				format_project_links=format_project_links,
+				make_badge=make_badge,
+				normalize=normalize,
+				format_internal_link=_format_internal_link,
+				)
+
+
+def get_package_requirements(package_name: str) -> list[tuple[str, set[ComparableRequirement], list[str], bool]]:
+	"""
+	Returns the requirements specified for the given package.
+
+	:param package_name: The package name.
+
+	:returns: An iterator of tuples containing:
+
+	* The (wheel) filename containing the requirements,
+	* a set of requirements listed in the file,
+	* a list of syntactically invalid lines,
+	* and whether the file's requirements should count towards the overall status (always :py:obj:`True`).
+	"""
+
+	# TODO: handle sdist-only packages
+
+	# TODO: caching
+	# datafile = CACHE_DIR / "wheel-deps" / f"{package_name}.dat"
+	# datafile.parent.maybe_make(parents=True)
+
+	with PyPIJSON() as client:
+		metadata = client.get_metadata(package_name)
+		tag_mapping, non_wheel_urls = metadata.get_wheel_tag_mapping(metadata.version)
+		generic_tag = next(generic_tags())
+		if generic_tag in tag_mapping:
+			wheel_url = tag_mapping[generic_tag]
+		else:
+			wheel_url = next(iter(tag_mapping.values()))
+
+	with RemoteWheelDistribution.from_url(wheel_url) as wheel:
+		wheel_metadata = wheel.get_metadata()
+		# TODO: handle extra requirements (split up like separate files?)
+		dependencies = set(map(ComparableRequirement, wheel_metadata.get_all("Requires-Dist", default=())))
+		wheel_filename = os.path.basename(urlparse(str(wheel_url)).path)
+		return [(wheel_filename, dependencies, [], True)]

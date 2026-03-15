@@ -11,6 +11,7 @@ platformdirs>=2.2.0
 pybadges>=2.2.1
 pygments>=2.10.0
 pypi-json>=0.5.0
+remote-wheel>=0.2.0
 requests>=2.26.0
 restx-monkey>=0.6.1
 setup-py-upgrade==1.2.1

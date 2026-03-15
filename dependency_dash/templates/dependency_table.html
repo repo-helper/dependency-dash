@@ -40,9 +40,7 @@
 					<td>
 						<div class="d-flex flex-row align-items-center flex-wrap">
 							<div class="p-2">
-								{% if data["dependency_dash_url"] %}<a href="{{ data['dependency_dash_url'] }}" title="View Dependencies">{% endif %}
-									{{ req.name }}
-								{% if data["dependency_dash_url"] %}</a>{% endif %}
+								{{ format_internal_link(req, data) | safe }}
 							</div>
 							<div class="p-2 ml-auto pkg-links">
 								{%- if data["package_url"].strip() -%}
