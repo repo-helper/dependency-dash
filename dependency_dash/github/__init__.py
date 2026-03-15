@@ -414,6 +414,7 @@ def github_project(username: str, repository: str) -> Response:
 						"project_404.html",
 						project_name=project_name,
 						description=f"Dependency status for https://github.com/{project_name}",
+						search_url="/search/github/",
 						),
 				404,
 				)
@@ -424,6 +425,7 @@ def github_project(username: str, repository: str) -> Response:
 					project_name=repo.full_name,
 					data_url=f"/htmx/github/{repo.full_name}/{repo.default_branch}/",
 					description=f"Dependency status for https://github.com/{repo.full_name}",
+					search_url="/search/github/",
 					),
 			)
 
@@ -523,6 +525,7 @@ def github_user(username: str) -> str:
 			"user.html",
 			username=username,
 			data_url=f"/htmx/github/{username}/",
+			search_url="/search/github/",
 			)
 
 

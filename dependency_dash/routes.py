@@ -163,8 +163,20 @@ def configuration() -> Response:
 	return render_markdown_page("configuration.md")
 
 
+def search_pypi(query: str):
+	return app.redirect(f"/pypi/{query}", code=302)
+
+
+def search_github(query: str):
+	return app.redirect(f"/github/{query}", code=302)
+
+
+search_domains = {"github": search_github, "pypi": search_pypi}
+
+
 @app.route("/search/", methods=["POST"])
-def search() -> Response:
+@app.route("/search/<domain>/", methods=["POST"])
+def search(domain="github") -> Response:
 	"""
 	Route for the search page.
 
@@ -174,19 +186,18 @@ def search() -> Response:
 	# TODO: way to indicate from PyPI pages to search without pypi: by default
 
 	query = cast(str, GoToForm(request.form).data["search"]).lower().strip()
-	if query.startswith("pypi:"):
-		# Searching PyPI
-		query = query.removeprefix("pypi:").strip()
-		return app.redirect(f"/pypi/{query}", code=302)
 
-	elif query.startswith("github:"):
-		# Searching GitHub
-		query = query.removeprefix("github:").strip()
-		return app.redirect(f"/github/{query}", code=302)
+	for domain_string, search_fn in search_domains.items():
+		domain_prefix = f"{domain_string}:"
+
+		if query.startswith(domain_prefix):
+			# Search within specified domain
+			query = query.removeprefix(domain_prefix).strip()
+			return search_fn(query)
 
 	else:
-		# Default to GitHub
-		return app.redirect(f"/github/{query}", code=302)
+		# Default domain
+		return search_domains[domain](query)
 
 
 @app.errorhandler(404)

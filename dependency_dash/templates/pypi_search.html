@@ -1,6 +1,7 @@
 {% extends "search.html" %}
 {% set form_label = "Type in a package name" %}
 {% set description = "dependency-dash is a completely Open Source dashboard for viewing the dependency status of Python packages on PyPI." %}
+{% set search_url = "/search/pypi/" %}
 
 {% block blurb %}
 	<h2>dependency-dash</h2>
@@ -17,7 +18,7 @@
 	<div class="alert alert-info">
 		<h6>Search Tips</h6>
 		<ul>
-			<li><code>pypi:shrubbery</code> searches for a PyPI package called <code>shrubbery</code></li>
+			<li><code>pypi:shrubbery</code> or simply <code>shrubbery</code> searches for a PyPI package called <code>shrubbery</code></li>
 		</ul>
 	</div>
 

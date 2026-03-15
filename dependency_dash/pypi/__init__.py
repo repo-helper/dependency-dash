@@ -334,6 +334,7 @@ def pypi_package(name: str) -> Response:
 							"pypi_package_404.html",
 							project_name=project_name,
 							description=f"Dependency status for https://pypi.org/project/{project_name}",
+							search_url="/search/pypi/",
 							),
 					404,
 					)
@@ -344,6 +345,7 @@ def pypi_package(name: str) -> Response:
 					project_name=metadata.name,
 					data_url=f"/htmx/pypi/{metadata.name}/",
 					description=f"Dependency status for https://pypi.org/project/{metadata.name}",
+					search_url="/search/pypi/",
 					),
 			)
 
