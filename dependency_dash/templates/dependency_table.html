@@ -8,8 +8,8 @@
 		<button
 				class="btn text-center"
 				type="button"
-				data-toggle="collapse"
-				data-target="#{{ anchor_id }}"
+				data-bs-toggle="collapse"
+				data-bs-target="#{{ anchor_id }}"
 				aria-expanded="true"
 				aria-controls="{{ anchor_id }}"
 		>
@@ -42,7 +42,7 @@
 							<div class="p-2">
 								{{ format_internal_link(req, data) | safe }}
 							</div>
-							<div class="p-2 ml-auto pkg-links">
+							<div class="p-2 ms-auto pkg-links">
 								{%- if data["package_url"].strip() -%}
 									<a href="{{ data['package_url'] }}" title="View on PyPI"><i class="fab fa-python"></i></a>
 								{%- endif -%}
@@ -51,8 +51,8 @@
 									<a
 											class="license-info-hover-target"
 											href="#"
-											data-toggle="tooltip"
-											data-placement="top"
+											data-bs-toggle="tooltip"
+											data-bs-placement="top"
 											title="{{ data['license'] }}"
 									><i class="far fa-file-alt"></i></a>
 								{%- endif -%}
@@ -68,7 +68,7 @@
 			<script>
 				if (window.matchMedia("(any-hover: none)").matches) {
 				  $('document').ready(function () {
-				    $('[data-toggle=tooltip]').tooltip();
+				    $('[data-bs-toggle=tooltip]').tooltip();
 				  });
 				}
 		</script>
@@ -76,8 +76,8 @@
 	</div>
 {% endfor %}
 
-<div class="p-2 ml-auto" id="badge" hx-swap-oob="true">
-	<a title="Show badge URLs" data-toggle="collapse" href="#badge-urls" >
+<div class="p-2 ms-auto" id="badge" hx-swap-oob="true">
+	<a title="Show badge URLs" data-bs-toggle="collapse" href="#badge-urls" >
 		{{ make_badge(badge_data)|safe }}
 	</a>
 </div>

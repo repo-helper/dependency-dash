@@ -22,6 +22,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .site-header .navbar-nav .nav-link.active {
 	font-weight: 500;
+	color: #fff;
 }
 
 .content-section {
@@ -314,11 +315,11 @@ section.dependency-table-header button i.fa-lightbulb::before {
 	margin-top: 10%;
 }
 
-[data-toggle="collapse"] .fa.collapse-indicator::before {
+[data-bs-toggle="collapse"] .fa.collapse-indicator::before {
 	content: "\f139";
 }
 
-[data-toggle="collapse"].collapsed .fa.collapse-indicator::before {
+[data-bs-toggle="collapse"].collapsed .fa.collapse-indicator::before {
 	content: "\f13a";
 }
 

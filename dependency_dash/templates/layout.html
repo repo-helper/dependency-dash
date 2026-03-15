@@ -11,7 +11,7 @@
 	{% endblock %}
 
 	<!-- Bootstrap CSS -->
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.min.css') }}">
 	{% for stylesheet in extra_stylesheets %}
@@ -38,30 +38,30 @@
 		<nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
 			<div class="container">
 				{% if home %}
-					<a class="navbar-brand mr-4 no-fade" href="#">dependency-dash</a>
+					<a class="navbar-brand me-4 no-fade" href="#">dependency-dash</a>
 				{% elif title %}
-					<a class="navbar-brand mr-4" href="/">dependency-dash</a>
-					<a class="navbar-brand pull-left mr-4 navbar-page-title" href="#" tabindex="-1">{{ title }}</a>
+					<a class="navbar-brand me-4" href="/">dependency-dash</a>
+					<a class="navbar-brand pull-left me-4 navbar-page-title" href="#" tabindex="-1">{{ title }}</a>
 				{% else %}
-					<a class="navbar-brand mr-4 no-fade" href="/">dependency-dash</a>
+					<a class="navbar-brand me-4 no-fade" href="/">dependency-dash</a>
 				{% endif %}
 
-				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
 					<span class="navbar-toggler-icon"></span>
 				</button>
 
 				<div class="collapse navbar-collapse" id="navbarToggle">
-					<div class="navbar-nav ml-auto mr-3">
+					<div class="navbar-nav ms-auto me-3">
 						{% macro navbar_link(name, url) -%}
 							{% if name == title %}
-								<a class="nav-item nav-link active" href="#">{{ name }}</a>
+								<a class="nav-item nav-link active" aria-current="page" href="#">{{ name }}</a>
 							{% else %}
 								<a class="nav-item nav-link" href="{{ url }}">{{ name }}</a>
 							{% endif %}
 						{%- endmacro %}
 
 						{% if home %}
-							<a class="nav-item nav-link active" href="#">Home</a>
+							<a class="nav-item nav-link active" aria-current="page" href="#">Home</a>
 						{% else %}
 							<a class="nav-item nav-link" href="/">Home</a>
 						{% endif %}
@@ -77,7 +77,7 @@
 						{% block searchbox %}
 							<form action="/search/" method="post" class="form-inline my-2 my-lg-0">
 								<input
-										class="form-control mr-sm-2"
+										class="form-control me-sm-2"
 										type="search" id="search" name="search"
 										placeholder="User/Repository" aria-label="Go to a repository"
 								>
@@ -128,10 +128,8 @@
 
 	{% block scripts %}
 		<!-- Optional JavaScript -->
-		<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-		<script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+		<!-- <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script> -->
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 
 		<script src="https://unpkg.com/htmx.org@1.5.0/dist/htmx.min.js" integrity="sha384-oGA+prIp5Vchu6we2YkI51UtVzN9Jpx2Z7PnR1I78PnZlN8LkrCT4lqqqmDkyrvI" crossorigin="anonymous"></script>
 
