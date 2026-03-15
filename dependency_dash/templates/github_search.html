@@ -1,14 +1,15 @@
 {% extends "search.html" %}
+{% set form_label = "Type in a user or repository name" %}
 {% set description = "dependency-dash is a completely Open Source dashboard for viewing the dependency status of a Python package or GitHub repository." %}
 
 {% block blurb %}
-	<h1>dependency-dash</h1>
+	<h2>dependency-dash</h2>
+	<h1>GitHub <i class="fab fa-github"></i></h1>
 	<p>
-		<code>dependency-dash</code> is a completely Open Source dashboard for viewing
-		the dependency status of a Python package or GitHub repository.
+		View the dependency status of a Python package or GitHub repository.
 	</p>
 	<p class="goto-label">
-		To get started, type a repository or package name below:
+		To get started, type a user or repository name below:
 	</p>
 {% endblock blurb %}
 
@@ -16,7 +17,6 @@
 	<div class="alert alert-info">
 		<h6>Search Tips</h6>
 		<ul>
-			<li><code>pypi:shrubbery</code> searches for a PyPI package called <code>shrubbery</code></li>
 			<li><code>github:octocat</code> searches for a GitHub user or org called <code>octocat</code></li>
 			<li><code>github:octocat/hello-world</code> searches for the GitHub repository <code>hello-world</code> owned by the user <code>octocat</code></li>
 			<li><code>octocat/hello-world</code> has the same effect as <code>github:octocat/hello-world</code></li>

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-#  github.py
+#  github/__init__.py
 """
 GitHub backend.
 """
@@ -789,3 +789,12 @@ def parse_repo_url(url: str) -> tuple[str, str]:
 		raise ValueError(f"Not a repository URL: {url!r}")
 
 	return username, repo_name
+
+
+@app.route("/github/")
+def github() -> Response:
+	"""
+	Route for displaying the GitHub frontend landing page.
+	"""
+
+	return Response(render_template("github_search.html"))

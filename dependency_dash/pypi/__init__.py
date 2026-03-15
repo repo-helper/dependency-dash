@@ -408,3 +408,12 @@ def get_package_requirements(package_name: str) -> list[tuple[str, set[Comparabl
 		dependencies = set(map(ComparableRequirement, wheel_metadata.get_all("Requires-Dist", default=())))
 		wheel_filename = os.path.basename(urlparse(str(wheel_url)).path)
 		return [(wheel_filename, dependencies, [], True)]
+
+
+@app.route("/pypi/")
+def pypi() -> Response:
+	"""
+	Route for displaying the PyPI frontend landing page.
+	"""
+
+	return Response(render_template("pypi_search.html"))

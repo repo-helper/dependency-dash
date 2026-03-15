@@ -1,24 +1,7 @@
-{% extends "layout.html" %}
+{% extends "search.html" %}
 {% set title="404" %}
 
-
-{% macro searchbox(form) %}
-	{% from "_formhelpers.html" import render_field %}
-	<form action="/search/" method="post" class="form-goto">
-		<div class="input-group mb-3 flex-grow">
-			<div class="form-label-group flex-grow">
-				{{ form.search(class_="form-control", placeholder="", aria_label="Repository name", type="search") }}
-				<label for="search">Type in a repository name</label>
-			</div>
-			<div class="input-group-append">
-				<button class="btn btn-outline-secondary" type="submit">Go</button>
-			</div>
-		</div>
-	</form>
-{% endmacro %}
-
-
-{% block content %}
+{% block blurb %}
 	<h1>404</h1>
 
 	<p>We looked everywhere but we couldn't find that page!</p>
@@ -28,10 +11,4 @@
 		<p class="goto-label">
 			Try using the links in the top bar to find what you are looking for, or type a repository name below.
 	</p>
-
-	{{ searchbox(form) }}
-
-{% endblock content %}
-
-{% block searchbox %}
-{% endblock %}
+{% endblock blurb %}

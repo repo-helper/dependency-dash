@@ -1,0 +1,24 @@
+{% extends "search.html" %}
+{% set form_label = "Type in a package name" %}
+{% set description = "dependency-dash is a completely Open Source dashboard for viewing the dependency status of Python packages on PyPI." %}
+
+{% block blurb %}
+	<h2>dependency-dash</h2>
+	<h1>PyPI <i class="fab fa-python"></i></h1>
+	<p>
+		View the dependency status of a Python packages on PyPI
+	</p>
+	<p class="goto-label">
+		To get started, type a package name below:
+	</p>
+{% endblock blurb %}
+
+{% block tips %}
+	<div class="alert alert-info">
+		<h6>Search Tips</h6>
+		<ul>
+			<li><code>pypi:shrubbery</code> searches for a PyPI package called <code>shrubbery</code></li>
+		</ul>
+	</div>
+
+{% endblock tips %}

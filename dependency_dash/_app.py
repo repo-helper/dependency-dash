@@ -32,7 +32,7 @@ Don't import from here; import directly from ``dependency_dash`` itself.
 import mimetypes
 import os
 from http import HTTPStatus
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 # 3rd party
 from domdf_python_tools.paths import PathPlus
@@ -50,7 +50,14 @@ except ImportError:
 else:
 	load_dotenv()  # take environment variables from .env.
 
-app = Flask("dependency_dash", template_folder=(PathPlus(__file__).parent / "templates").as_posix())
+
+class DependencyDashApp(Flask):
+
+	def redirect(self, location: str, code: int = 302) -> Response:
+		return cast(Response, super().redirect(location, code))
+
+
+app = DependencyDashApp("dependency_dash", template_folder=(PathPlus(__file__).parent / "templates").as_posix())
 api = Api(app, prefix="/api", doc="/api/")
 app.config["SWAGGER_UI_DOC_EXPANSION"] = "full"  # change to list when there's another endpoint
 app.config["JSON_SORT_KEYS"] = False

@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+{% set form_label = form_label | default("Type in a user, repository or package name") %}
+
+{% block extrahead %}
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/fontawesome.min.css') }}">
+{% endblock extrahead %}
+
+{% macro searchbox(form) %}
+	{% from "_formhelpers.html" import render_field %}
+	<form action="/search/" method="post" class="form-goto">
+		<div class="input-group mb-3 flex-grow">
+			<div class="form-label-group flex-grow">
+				{{ form.search(class_="form-control", placeholder="", aria_label="Repository name", type="search") }}
+				<label for="search">{{ form_label }}</label>
+			</div>
+			<div class="input-group-append">
+				<button class="btn btn-outline-secondary" type="submit">Go</button>
+			</div>
+		</div>
+	</form>
+{% endmacro %}
+
+
+{% block content %}
+	{% block blurb %}
+	{% endblock blurb %}
+
+	{{ searchbox(form) }}
+
+	{% block tips %}
+	{% endblock tips %}
+
+{% endblock content %}
+
+{% block searchbox %}
+{% endblock searchbox %}

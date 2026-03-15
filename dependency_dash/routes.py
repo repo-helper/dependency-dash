@@ -28,13 +28,14 @@ Flask HTTP routes.
 
 # stdlib
 from re import Match
+from typing import cast
 from urllib.parse import urljoin
 
 # 3rd party
 import jinja2
 import markdown
 from domdf_python_tools.compat import importlib_resources
-from flask import Request, Response, make_response, redirect, render_template, request
+from flask import Request, Response, make_response, render_template, request
 from markdown.inlinepatterns import IMAGE_LINK_RE, ImageInlineProcessor
 
 # this package
@@ -170,10 +171,22 @@ def search() -> Response:
 	Only accepts POST requests.
 	"""
 
-	return redirect(  # type: ignore[return-value]
-			f"/github/{GoToForm(request.form).data['search']}",
-			code=302,
-			)
+	# TODO: way to indicate from PyPI pages to search without pypi: by default
+
+	query = cast(str, GoToForm(request.form).data["search"]).lower().strip()
+	if query.startswith("pypi:"):
+		# Searching PyPI
+		query = query.removeprefix("pypi:").strip()
+		return app.redirect(f"/pypi/{query}", code=302)
+
+	elif query.startswith("github:"):
+		# Searching GitHub
+		query = query.removeprefix("github:").strip()
+		return app.redirect(f"/github/{query}", code=302)
+
+	else:
+		# Default to GitHub
+		return app.redirect(f"/github/{query}", code=302)
 
 
 @app.errorhandler(404)
