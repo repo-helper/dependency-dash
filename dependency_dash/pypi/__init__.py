@@ -28,6 +28,8 @@ Retrieve and cache data from PyPI.
 
 # stdlib
 import datetime
+import hashlib
+from http import HTTPStatus
 import os
 from collections import Counter
 from collections.abc import Iterable, Iterator
@@ -40,7 +42,7 @@ from urllib.parse import urlparse
 import platformdirs
 import requests
 from domdf_python_tools.paths import PathPlus
-from flask import Response, render_template
+from flask import Response, render_template, request
 from packaging.requirements import InvalidRequirement
 from packaging.tags import generic_tags
 from packaging.version import InvalidVersion, Version
@@ -53,6 +55,7 @@ from shippinglabel.requirements import ComparableRequirement
 # this package
 from dependency_dash._app import app
 from dependency_dash.htmx import htmx
+from dependency_dash.utils import utcnow
 
 __all__ = [
 		"format_project_links",
@@ -417,3 +420,47 @@ def pypi() -> Response:
 	"""
 
 	return Response(render_template("pypi_search.html"))
+
+
+def _bad_package_badge(reason: str) -> Response:
+	badge_svg = badge(left_text="package", right_text=reason, right_color="silver")
+	return Response(badge_svg, content_type="image/svg+xml;charset=utf-8", status=200)
+
+@app.route("/pypi/<name>/badge.svg")
+def badge_pypi_package(name: str) -> Response:
+	"""
+	Route for displaying the status badge for the given package.
+
+	:param name: The package name.
+	"""
+
+	# TODO: etag caching
+
+	try:
+		data = get_package_requirements(name)
+	except InvalidRequirement:
+			return _bad_package_badge("not found")
+	except NotImplementedError:
+		return _bad_package_badge("unsupported")
+
+	else:
+		all_requirements: list[ComparableRequirement] = []
+		for filename, requirements, invalid, include in data:
+			if include:
+				all_requirements.extend(requirements)
+
+		badge_svg = make_badge(get_dependency_status(all_requirements))
+		etag = hashlib.sha256(badge_svg.encode("UTF-8")).hexdigest()
+
+		if request.headers.get("If-None-Match") == etag:
+			resp = Response(status=HTTPStatus.NOT_MODIFIED)
+		else:
+			resp = Response(badge_svg, content_type="image/svg+xml;charset=utf-8")
+
+		resp.headers["ETag"] = etag
+		cache_duration = 1200
+		resp.headers["Cache-Control"] = f"max-age={cache_duration}"
+		expires = (utcnow() + datetime.timedelta(seconds=cache_duration)).strftime("%a, %d %b %Y %H:%M:%S GMT")
+		resp.headers["Expires"] = expires
+		return resp
+
