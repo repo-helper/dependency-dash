@@ -54,14 +54,14 @@
 					<div class="navbar-nav ml-auto mr-3">
 						{% macro navbar_link(name, url) -%}
 							{% if name == title %}
-								<a class="nav-item nav-link active" href="#">{{ name }}</a>
+								<a class="nav-item nav-link active" aria-current="page" href="#">{{ name }}</a>
 							{% else %}
 								<a class="nav-item nav-link" href="{{ url }}">{{ name }}</a>
 							{% endif %}
 						{%- endmacro %}
 
 						{% if home %}
-							<a class="nav-item nav-link active" href="#">Home</a>
+							<a class="nav-item nav-link active" aria-current="page" href="#">Home</a>
 						{% else %}
 							<a class="nav-item nav-link" href="/">Home</a>
 						{% endif %}
