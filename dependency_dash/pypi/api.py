@@ -54,6 +54,7 @@ requirement_data_model = api.model(
 				"license": fields.String(example="MIT"),
 				"package_url": fields.Url(example="https://pypi.org/project/importlib-metadata/"),
 				"project_urls": fields.Nested(project_urls_model),
+				"dependency_dash_url": fields.String(example="/github/python/importlib_metadata/"),
 				"all_versions": fields.List(fields.String(example="1.2.3")),
 				"current_version": fields.String(example="4.6.4"),
 				},

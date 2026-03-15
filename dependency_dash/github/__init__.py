@@ -39,6 +39,7 @@ from http import HTTPStatus
 from operator import itemgetter
 from sys import intern
 from typing import Any, Callable, Union
+from urllib.parse import urlparse
 
 # 3rd party
 import dom_toml
@@ -59,6 +60,7 @@ from shippinglabel.requirements import ComparableRequirement, parse_requirements
 
 # this package
 from dependency_dash._app import app
+from dependency_dash.github import _reserved_usernames
 from dependency_dash.github._env import GITHUB
 from dependency_dash.github.api import GitHubProjectAPI  # noqa: F401
 from dependency_dash.htmx import htmx
@@ -78,6 +80,7 @@ __all__ = [
 		"htmx_github_user",
 		"iter_repos_for_user",
 		"parse_pyproject_toml",
+		"parse_repo_url",
 		"parse_requirements_txt",
 		"parse_setup_cfg",
 		"parse_setup_py",
@@ -780,3 +783,26 @@ def get_our_config(
 #
 # 	:return:
 # 	"""
+
+
+def parse_repo_url(url: str) -> tuple[str, str]:
+	"""
+	Parse the username and repository name from the given GitHub URL.
+
+	:param url:
+	"""
+
+	parsed = urlparse(url)
+
+	if parsed.netloc != "github.com":
+		raise ValueError(f"URL is not a GitHub URL: {url!r}")
+
+	try:
+		username, repo_name, *_ = parsed.path.strip('/').split('/')
+	except ValueError:
+		raise ValueError(f"Could not parse a repository from the URL {url!r}") from None
+
+	if username in _reserved_usernames.reserved_usernames:
+		raise ValueError(f"Not a repository URL: {url!r}")
+
+	return username, repo_name

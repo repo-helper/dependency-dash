@@ -47,7 +47,13 @@ from pypi_json import ProjectMetadata, PyPIJSON
 from shippinglabel import normalize
 from shippinglabel.requirements import ComparableRequirement
 
-__all__ = ["format_project_links", "get_data", "get_dependency_status", "make_badge"]
+__all__ = [
+		"format_project_links",
+		"get_data",
+		"get_dependency_dash_url",
+		"get_dependency_status",
+		"make_badge",
+		]
 
 CACHE_DIR = PathPlus(platformdirs.user_cache_dir("dependency_dash")) / "pypi"
 
@@ -112,6 +118,35 @@ def _sort_versions(*versions: str) -> list[str]:
 	return [v[0] for v in sorted(for_sort, key=itemgetter(1))]
 
 
+def get_dependency_dash_url(project_urls: dict[str, str]) -> Optional[str]:
+	"""
+	Returns the internal dependency-dash URL determined from the given project URLs.
+
+	If no URL can be inferred (because a GitHub URL isn't listed, for instance) an empty string will be returned.
+
+	:param project_urls:
+	"""
+
+	# this package
+	from dependency_dash.github import parse_repo_url
+
+	if project_urls is None:
+		return ''
+
+	for url in project_urls.values():
+		parsed = urlparse(url)
+
+		if parsed.netloc in ["github.com"]:
+			try:
+				username, repo_name = parse_repo_url(url)
+			except ValueError:
+				continue
+			else:
+				return f"/github/{username}/{repo_name}/"
+
+	return ''
+
+
 def get_data(project_name: str) -> dict[str, Any]:
 	"""
 	Obtain metadata for ``project_name`` from PyPI.
@@ -163,6 +198,7 @@ def get_data(project_name: str) -> dict[str, Any]:
 					"home_page": metadata.info["home_page"] or '',
 					"license": metadata.info["license"] or '',
 					"package_url": metadata.info["package_url"],
+					"dependency_dash_url": get_dependency_dash_url(metadata.info["project_urls"]),
 					"project_urls": metadata.info["project_urls"],
 					"all_versions": _sort_versions(*releases.keys()),
 					"etag": response.headers["etag"],
@@ -218,6 +254,7 @@ def get_dependency_status(
 				"license": '',
 				"package_url": '',
 				"project_urls": {},
+				"dependency_dash_url": '',
 				"all_versions": [],
 				"etag": '',
 				"last_modified": 0.0,

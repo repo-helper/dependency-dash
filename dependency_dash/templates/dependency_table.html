@@ -40,11 +40,14 @@
 					<td>
 						<div class="d-flex flex-row align-items-center flex-wrap">
 							<div class="p-2">
-								{% if data["package_url"] %}<a href="{{ data["package_url"] }}" title="View on PyPI">{% endif %}
+								{% if data["dependency_dash_url"] %}<a href="{{ data['dependency_dash_url'] }}" title="View Dependencies">{% endif %}
 									{{ req.name }}
-								{% if data["package_url"] %}</a>{% endif %}
+								{% if data["dependency_dash_url"] %}</a>{% endif %}
 							</div>
 							<div class="p-2 ml-auto pkg-links">
+								{%- if data["package_url"].strip() -%}
+									<a href="{{ data['package_url'] }}" title="View on PyPI"><i class="fab fa-python"></i></a>
+								{%- endif -%}
 								{{ format_project_links(data["project_urls"])|safe }}
 								{%- if data["license"].strip() -%}
 									<a
@@ -52,7 +55,7 @@
 											href="#"
 											data-toggle="tooltip"
 											data-placement="top"
-											title="{{ data["license"] }}"
+											title="{{ data['license'] }}"
 									><i class="far fa-file-alt"></i></a>
 								{%- endif -%}
 							</div>
