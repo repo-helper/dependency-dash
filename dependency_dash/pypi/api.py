@@ -27,7 +27,7 @@ Common API Models.
 #
 
 # stdlib
-from collections import defaultdict
+from typing import Any
 from urllib.parse import urljoin
 
 # 3rd party
@@ -122,14 +122,16 @@ class PyPIPackageAPI(Resource):
 			return error404("No supported files for package")
 		else:
 
-			output = defaultdict(list)
-			overall_data = []
+			output: dict[str, list[dict[str, Any]]] = {}
+			# overall_data = []
 
 			for filename, requirements, invalid, counts in data:
 				dependencies = list(get_dependency_status(requirements))
 
-				if counts:
-					overall_data.extend(dependencies)
+				output[filename] = []
+
+				# if counts:
+				# 	overall_data.extend(dependencies)
 
 				for req, status, req_data in dependencies:
 					v: str = req_data.pop("version")  # type: ignore[misc]
