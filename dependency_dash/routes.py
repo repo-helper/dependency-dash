@@ -27,39 +27,26 @@ Flask HTTP routes.
 #
 
 # stdlib
-from re import Match
 from typing import cast
-from urllib.parse import urljoin
 
 # 3rd party
-import jinja2
-import markdown
-from domdf_python_tools.compat import importlib_resources
-from flask import Request, Response, make_response, render_template, request
-from markdown.inlinepatterns import IMAGE_LINK_RE, ImageInlineProcessor
+from flask import Response, render_template, request
 
 # this package
 from dependency_dash._app import GoToForm, app
+from dependency_dash.markdown import render_markdown_page
+from dependency_dash.utils import canonical_url_header
 
 __all__ = [
 		"home",
-		"render_markdown_page",
 		"about",
 		"usage",
 		"configuration",
 		"search",
 		"page_not_found",
+		"security_txt",
 		"server_error",
 		]
-
-
-def get_canonical_url(request: Request) -> str:
-	return urljoin(app.config["DD_ROOT_URL"], request.path)
-
-
-def canonical_url_header(request: Request) -> dict[str, str]:
-	canonical_url = get_canonical_url(request)
-	return {"Link": f'<{canonical_url}>; rel="canonical"'}
 
 
 @app.route('/')
@@ -84,56 +71,6 @@ Expires: 2024-02-16T14:00:00.000+00:00
 """
 
 	return Response(content, headers={"Content-Type": "text/plain; charset=utf-8"})
-
-
-class _ImgFluidInlineProcessor(ImageInlineProcessor):
-	"""
-	Markdown image processor to use bootstrap's ``img-fluid`` class.
-	"""
-
-	# TODO: mypy thinks the signature doesn't match the superclass but it matches what's in their docs and the pyright stubs.
-	def handleMatch(self, m: Match[str], data: str):  # type: ignore[override]  # noqa: MAN002
-		el, start, index = super().handleMatch(m, data)
-		assert el is not None
-		el.set("class", "img-fluid")  # type: ignore[union-attr]
-		return el, start, index
-
-
-def render_markdown_page(filename: str, template: str = "page.html") -> Response:
-	"""
-	Render a markdown page to HTML.
-
-	:param filename:
-	:param template:
-	"""
-
-	# Expand "macros"
-	raw = importlib_resources.read_text("dependency_dash.pages", filename)
-	text = jinja2.Template(raw).render().splitlines()
-
-	md = markdown.Markdown(extensions=["fenced_code", "codehilite", "toc"])
-	md.inlinePatterns.register(_ImgFluidInlineProcessor(IMAGE_LINK_RE, md), "image_link", 150)
-
-	while not text[0].strip():
-		text.pop(0)
-	if text[0].startswith("# "):
-		title = text[0][2:].strip()
-	else:
-		title = ''
-
-	body = md.convert('\n'.join(text))
-
-	rendered = render_template(
-			template,
-			body=body,
-			title=title,
-			)
-
-	response = make_response(rendered)
-	response.add_etag()
-	response.make_conditional(request)
-	response.headers.update(canonical_url_header(request))
-	return response
 
 
 @app.route("/about/")
@@ -163,11 +100,11 @@ def configuration() -> Response:
 	return render_markdown_page("configuration.md")
 
 
-def search_pypi(query: str):
+def search_pypi(query: str) -> Response:
 	return app.redirect(f"/pypi/{query}", code=302)
 
 
-def search_github(query: str):
+def search_github(query: str) -> Response:
 	return app.redirect(f"/github/{query}", code=302)
 
 
@@ -176,7 +113,7 @@ search_domains = {"github": search_github, "pypi": search_pypi}
 
 @app.route("/search/", methods=["POST"])
 @app.route("/search/<domain>/", methods=["POST"])
-def search(domain="github") -> Response:
+def search(domain: str = "github") -> Response:  # noqa: PRM002
 	"""
 	Route for the search page.
 
@@ -201,22 +138,18 @@ def search(domain="github") -> Response:
 
 
 @app.errorhandler(404)
-def page_not_found(e: Exception) -> tuple[str, int]:
+def page_not_found(e: Exception) -> tuple[str, int]:  # noqa: PRM002
 	"""
 	Route for HTTP 404 errors.
-
-	:param e:
 	"""
 
 	return render_template("404.html"), 404
 
 
 @app.errorhandler(500)
-def server_error(e: Exception) -> tuple[str, int]:
+def server_error(e: Exception) -> tuple[str, int]:  # noqa: PRM002
 	"""
 	Route for HTTP 500 errors.
-
-	:param e:
 	"""
 
 	return render_template("500.html"), 500

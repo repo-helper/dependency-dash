@@ -29,8 +29,15 @@ General utilities.
 # stdlib
 import re
 from datetime import datetime, timezone
+from urllib.parse import urljoin
 
-__all__ = ["strptime", "utcnow"]
+# 3rd party
+from flask import Request
+
+# this package
+from dependency_dash._app import app
+
+__all__ = ["canonical_url_header", "get_canonical_url", "strptime", "utcnow"]
 
 _normalize_pattern = re.compile(r"\W+")
 
@@ -61,3 +68,24 @@ def strptime(data_string: str, format: str) -> datetime:  # noqa: A002  # pylint
 		data_string = data_string.replace("UTC", "+00:00")
 
 	return datetime.strptime(data_string, format)
+
+
+def get_canonical_url(request: Request) -> str:
+	"""
+	Returns the canonical URL for the requested page.
+
+	:param request: The flask request.
+	"""
+
+	return urljoin(app.config["DD_ROOT_URL"], request.path)
+
+
+def canonical_url_header(request: Request) -> dict[str, str]:
+	"""
+	Add a header for the canonical URL to the request's response.
+
+	:param request: The flask request.
+	"""
+
+	canonical_url = get_canonical_url(request)
+	return {"Link": f'<{canonical_url}>; rel="canonical"'}

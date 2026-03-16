@@ -28,21 +28,18 @@ Retrieve and cache data from PyPI.
 
 # stdlib
 import datetime
-import hashlib
-from http import HTTPStatus
 import os
-from collections import Counter
 from collections.abc import Iterable, Iterator
 from email.utils import parsedate_to_datetime
 from operator import itemgetter
-from typing import Any, Optional
+from typing import Any, Optional, TypedDict
 from urllib.parse import urlparse
 
 # 3rd party
 import platformdirs
 import requests
 from domdf_python_tools.paths import PathPlus
-from flask import Response, render_template, request
+from flask import Response, render_template
 from packaging.requirements import InvalidRequirement
 from packaging.tags import generic_tags
 from packaging.version import InvalidVersion, Version
@@ -52,20 +49,13 @@ from remote_wheel import RemoteWheelDistribution
 from shippinglabel import normalize
 from shippinglabel.requirements import ComparableRequirement
 
-# this package
-from dependency_dash._app import app
-from dependency_dash.htmx import htmx
-from dependency_dash.utils import utcnow
-
 __all__ = [
+		"DependencyMetadata",
 		"format_project_links",
 		"get_data",
 		"get_dependency_dash_url",
 		"get_dependency_status",
 		"get_package_requirements",
-		"htmx_pypi_package",
-		"make_badge",
-		"pypi_package",
 		]
 
 CACHE_DIR = PathPlus(platformdirs.user_cache_dir("dependency_dash")) / "pypi"
@@ -160,7 +150,24 @@ def get_dependency_dash_url(project_urls: dict[str, str]) -> Optional[str]:
 	return ''
 
 
-def get_data(project_name: str) -> dict[str, Any]:
+class DependencyMetadata(TypedDict):
+	"""
+	Metadata about a project's dependency.
+	"""
+
+	name: str
+	version: str
+	home_page: str
+	license: str
+	package_url: str
+	project_urls: dict[str, str]
+	dependency_dash_url: Optional[str]
+	all_versions: list[str]
+	etag: str
+	last_modified: float
+
+
+def get_data(project_name: str) -> DependencyMetadata:
 	"""
 	Obtain metadata for ``project_name`` from PyPI.
 
@@ -175,8 +182,8 @@ def get_data(project_name: str) -> dict[str, Any]:
 
 	def get_updated_data(
 			etag: Optional[str] = None,
-			stale_data: Optional[dict[str, Any]] = None,
-			) -> dict[str, Any]:
+			stale_data: Optional[DependencyMetadata] = None,
+			) -> DependencyMetadata:
 		with PyPIJSON() as client:
 			query_url = client.endpoint / project_name / "json"
 
@@ -241,8 +248,7 @@ def get_data(project_name: str) -> dict[str, Any]:
 
 def get_dependency_status(
 		requirements: Iterable[ComparableRequirement],
-		) -> Iterator[tuple[ComparableRequirement, str, dict[str, Any]]]:
-	# TODO: TypedDict
+		) -> Iterator[tuple[ComparableRequirement, str, DependencyMetadata]]:
 	"""
 	For the given requirements, determine whether it is up-to-date.
 
@@ -287,95 +293,8 @@ def get_dependency_status(
 		# TODO: check against safety's DB. Probably need to enumerate releases from PyPI
 
 
-def make_badge(dependency_data: Iterator[tuple[ComparableRequirement, str, dict[str, Any]]]) -> str:
-	"""
-	Construct a badge from the given dependency data.
-
-	:param dependency_data: An iterator over ``(requirement, status, metadata)`` tuples.
-
-	:returns: The SVG badge.
-	"""
-
-	status_counts = Counter(map(itemgetter(1), list(dependency_data)))
-
-	if status_counts.get("insecure", 0):
-		return badge(
-				left_text="dependencies",
-				right_text=f'{status_counts["insecure"]} insecure',
-				right_color="red",
-				)
-	elif status_counts.get("outdated", 0):
-		return badge(
-				left_text="dependencies",
-				right_text=f'{status_counts["outdated"]} outdated',
-				right_color="orange",
-				)
-	else:
-		return badge(left_text="dependencies", right_text="up-to-date", right_color="#82B805")
-
-
-@app.route("/pypi/<name>")
-def pypi_package(name: str) -> Response:
-	"""
-	Route for displaying information about a single pypi package.
-
-	:param name: The name of the package.
-	"""
-
-	project_name = normalize(name)
-
-	with PyPIJSON() as client:
-		try:
-			metadata = client.get_metadata(project_name)
-
-		except InvalidRequirement:
-			return Response(
-					render_template(
-							"pypi_package_404.html",
-							project_name=project_name,
-							description=f"Dependency status for https://pypi.org/project/{project_name}",
-							search_url="/search/pypi/",
-							),
-					404,
-					)
-
-	return Response(
-			render_template(
-					"pypi_package.html",
-					project_name=metadata.name,
-					data_url=f"/htmx/pypi/{metadata.name}/",
-					description=f"Dependency status for https://pypi.org/project/{metadata.name}",
-					search_url="/search/pypi/",
-					),
-			)
-
-
 def _format_internal_link(req: ComparableRequirement, data: dict[str, Any]) -> str:
 	return f'<a href="/pypi/{normalize(req.name)}" title="View Dependencies">{req.name}</a>'
-
-
-@htmx(app, "/pypi/<name>/")
-def htmx_pypi_package(name: str) -> str:
-	"""
-	HTMX callback for obtaining the requirements table for the given PyPI package.
-
-	:param name: The package name.
-	"""
-
-	try:
-		data = get_package_requirements(name)
-	except NotImplementedError:
-		return render_template("no_supported_files.html")
-	else:
-		return render_template(
-				"dependency_table.html",
-				data=data,
-				get_dependency_status=get_dependency_status,
-				format_project_links=format_project_links,
-				make_badge=make_badge,
-				normalize=normalize,
-				format_internal_link=_format_internal_link,
-				)
 
 
 def get_package_requirements(package_name: str) -> list[tuple[str, set[ComparableRequirement], list[str], bool]]:
@@ -415,54 +334,6 @@ def get_package_requirements(package_name: str) -> list[tuple[str, set[Comparabl
 		return [(wheel_filename, dependencies, [], True)]
 
 
-@app.route("/pypi/")
-def pypi() -> Response:
-	"""
-	Route for displaying the PyPI frontend landing page.
-	"""
-
-	return Response(render_template("pypi_search.html"))
-
-
 def _bad_package_badge(reason: str) -> Response:
 	badge_svg = badge(left_text="package", right_text=reason, right_color="silver")
 	return Response(badge_svg, content_type="image/svg+xml;charset=utf-8", status=200)
-
-@app.route("/pypi/<name>/badge.svg")
-def badge_pypi_package(name: str) -> Response:
-	"""
-	Route for displaying the status badge for the given package.
-
-	:param name: The package name.
-	"""
-
-	# TODO: etag caching
-
-	try:
-		data = get_package_requirements(name)
-	except InvalidRequirement:
-			return _bad_package_badge("not found")
-	except NotImplementedError:
-		return _bad_package_badge("unsupported")
-
-	else:
-		all_requirements: list[ComparableRequirement] = []
-		for filename, requirements, invalid, include in data:
-			if include:
-				all_requirements.extend(requirements)
-
-		badge_svg = make_badge(get_dependency_status(all_requirements))
-		etag = hashlib.sha256(badge_svg.encode("UTF-8")).hexdigest()
-
-		if request.headers.get("If-None-Match") == etag:
-			resp = Response(status=HTTPStatus.NOT_MODIFIED)
-		else:
-			resp = Response(badge_svg, content_type="image/svg+xml;charset=utf-8")
-
-		resp.headers["ETag"] = etag
-		cache_duration = 1200
-		resp.headers["Cache-Control"] = f"max-age={cache_duration}"
-		expires = (utcnow() + datetime.timedelta(seconds=cache_duration)).strftime("%a, %d %b %Y %H:%M:%S GMT")
-		resp.headers["Expires"] = expires
-		return resp
-

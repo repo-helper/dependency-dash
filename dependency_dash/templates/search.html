@@ -1,9 +1,5 @@
-{% extends "layout.html" %}
+{% extends "fontawesome.html" %}
 {% set form_label = form_label | default("Type in a user, repository or package name") %}
-
-{% block extrahead %}
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/fontawesome.min.css') }}">
-{% endblock extrahead %}
 
 {% macro searchbox(form) %}
 	{% from "_formhelpers.html" import render_field %}

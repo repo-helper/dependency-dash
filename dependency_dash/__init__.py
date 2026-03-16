@@ -32,8 +32,11 @@ import restx_monkey as monkey  # type: ignore[import-untyped]
 monkey.patch_restx()
 
 # this package
-from dependency_dash import github, routes  # noqa: F401,E402
+import dependency_dash.github.api  # noqa: E402
+from dependency_dash import routes  # noqa: F401,E402
 from dependency_dash._app import api, app  # noqa: E402
+from dependency_dash.github import routes as _github_routes  # noqa: F401,E402
+from dependency_dash.pypi import routes as _pypi_routes  # noqa: F401,E402
 
 __author__: str = "Dominic Davis-Foster"
 __copyright__: str = "2021 Dominic Davis-Foster"
@@ -43,4 +46,4 @@ __email__: str = "dominic@davis-foster.co.uk"
 
 __all__ = ["app"]
 
-api.add_namespace(github.api.api)
+api.add_namespace(dependency_dash.github.api.api)

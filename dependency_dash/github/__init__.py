@@ -28,55 +28,38 @@ GitHub backend.
 
 # stdlib
 import ast
-import hashlib
-from collections import Counter
 from collections.abc import Iterator
 from configparser import ConfigParser
 from contextlib import suppress
-from datetime import datetime, timedelta
-from http import HTTPStatus
-from operator import itemgetter
+from datetime import datetime
 from sys import intern
 from typing import Any, Callable, Union
 from urllib.parse import urlparse
 
 # 3rd party
 import dom_toml
-import github3
 import platformdirs
 import requests
 import setup_py_upgrade  # type: ignore[import-untyped]
 from domdf_python_tools.paths import PathPlus
-from flask import Response, render_template, request
+from flask import Response
 from github3.orgs import Organization
 from github3.repos import ShortRepository
 from github3.users import User
-from packaging.requirements import InvalidRequirement
-from packaging.version import InvalidVersion
 from pybadges import badge
 from shippinglabel.requirements import ComparableRequirement, parse_requirements
 
 # this package
-from dependency_dash._app import app
 from dependency_dash.github import _reserved_usernames
-from dependency_dash.github._env import GITHUB
-from dependency_dash.github.api import GitHubProjectAPI  # noqa: F401
-from dependency_dash.htmx import htmx
-from dependency_dash.pypi import format_project_links, get_dependency_status, make_badge
-from dependency_dash.utils import _normalize, strptime, utcnow
+from dependency_dash.utils import strptime, utcnow
 
 __all__ = [
 		"SkipFile",
-		"badge_github_project",
 		"get_our_config",
 		"get_parse_functions",
 		"get_parser_for_file",
 		"get_requirements_from_github",
 		"get_repo_requirements",
-		"github_project",
-		"github_user",
-		"htmx_github_project",
-		"htmx_github_user",
 		"iter_repos_for_user",
 		"parse_pyproject_toml",
 		"parse_repo_url",
@@ -92,8 +75,6 @@ SETUP_PY = intern("setup.py")
 SETUP_CFG = intern("setup.cfg")
 PYPROJECT_TOML = intern("pyproject.toml")
 REQUIREMENTS_TXT = intern("requirements.txt")
-
-STATUS_TEMPLATE_FILE = intern("repository_status.html")
 
 
 class SkipFile(Exception):
@@ -395,41 +376,6 @@ def get_repo_requirements(
 		raise NotImplementedError
 
 
-@app.route("/github/<username>/<repository>/")
-def github_project(username: str, repository: str) -> Response:
-	"""
-	Route for displaying information about a single github repository.
-
-	:param username: The user or organization that owns the repository.
-	:param repository: The repository name.
-	"""
-
-	project_name = f"{username}/{repository}"
-
-	try:
-		repo = GITHUB.repository(username, repository)
-	except github3.exceptions.NotFoundError:
-		return Response(
-				render_template(
-						"project_404.html",
-						project_name=project_name,
-						description=f"Dependency status for https://github.com/{project_name}",
-						search_url="/search/github/",
-						),
-				404,
-				)
-
-	return Response(
-			render_template(
-					"project.html",
-					project_name=repo.full_name,
-					data_url=f"/htmx/github/{repo.full_name}/{repo.default_branch}/",
-					description=f"Dependency status for https://github.com/{repo.full_name}",
-					search_url="/search/github/",
-					),
-			)
-
-
 def _format_internal_link(req: ComparableRequirement, data: dict[str, Any]) -> str:
 	if data["dependency_dash_url"]:
 		return f'<a href="{data["dependency_dash_url"]}" title="View Dependencies">{req.name}</a>'
@@ -437,168 +383,9 @@ def _format_internal_link(req: ComparableRequirement, data: dict[str, Any]) -> s
 		return req.name
 
 
-@htmx(app, "/github/<username>/<repository>/<branch>/")
-def htmx_github_project(username: str, repository: str, branch: str) -> str:
-	"""
-	HTMX callback for obtaining the requirements table for the given repository.
-
-	:param username: The user or organization that owns the repository.
-	:param repository: The repository name.
-	:param branch: The repository's default branch name.
-	"""
-
-	try:
-		data = get_repo_requirements(f"{username}/{repository}", branch)
-	except NotImplementedError:
-		return render_template("no_supported_files.html")
-	else:
-
-		# TODO: list invalid requirements
-		return render_template(
-				"dependency_table.html",
-				data=data,
-				get_dependency_status=get_dependency_status,
-				format_project_links=format_project_links,
-				make_badge=make_badge,
-				normalize=_normalize,
-				format_internal_link=_format_internal_link,
-				)
-
-
 def _bad_repo_badge(reason: str) -> Response:
 	badge_svg = badge(left_text="repository", right_text=reason, right_color="silver")
 	return Response(badge_svg, content_type="image/svg+xml;charset=utf-8", status=200)
-
-
-@app.route("/github/<username>/<repository>/badge.svg")
-def badge_github_project(username: str, repository: str) -> Response:
-	"""
-	Route for displaying the status badge for the given project.
-
-	:param username: The user or organization that owns the repository.
-	:param repository: The repository name.
-	"""
-
-	# TODO: etag caching
-
-	try:
-		repo = GITHUB.repository(username, repository)
-	except github3.exceptions.NotFoundError:
-		return _bad_repo_badge("not found")
-
-	try:
-		data = get_repo_requirements(repo.full_name, repo.default_branch)
-	except NotImplementedError:
-		return _bad_repo_badge("unsupported")
-
-	else:
-		all_requirements: list[ComparableRequirement] = []
-		for filename, requirements, invalid, include in data:
-			if include:
-				all_requirements.extend(requirements)
-
-		badge_svg = make_badge(get_dependency_status(all_requirements))
-		etag = hashlib.sha256(badge_svg.encode("UTF-8")).hexdigest()
-
-		if request.headers.get("If-None-Match") == etag:
-			resp = Response(status=HTTPStatus.NOT_MODIFIED)
-		else:
-			resp = Response(badge_svg, content_type="image/svg+xml;charset=utf-8")
-
-		resp.headers["ETag"] = etag
-		cache_duration = 1200
-		resp.headers["Cache-Control"] = f"max-age={cache_duration}"
-		expires = (utcnow() + timedelta(seconds=cache_duration)).strftime("%a, %d %b %Y %H:%M:%S GMT")
-		resp.headers["Expires"] = expires
-		return resp
-
-
-@app.route("/github/<username>/")
-def github_user(username: str) -> str:
-	"""
-	Route for displaying information about a all repositories owned by ``username``.
-
-	:param username: The user or organization to display information for.
-	"""
-
-	return render_template(
-			"user.html",
-			username=username,
-			data_url=f"/htmx/github/{username}/",
-			search_url="/search/github/",
-			)
-
-
-@htmx(app, "/github/<username>/")
-def htmx_github_user(username: str) -> str:
-	"""
-	HTMX callback for obtaining the projects table for the given user.
-
-	:param username: The user or organization to display information for.
-	"""
-
-	if "repo" in request.args:
-		repo = GITHUB.repository(*request.args["repo"].split('/'))
-
-		try:
-			data = get_repo_requirements(repo.full_name, repo.default_branch)
-		except NotImplementedError:
-			return render_template(STATUS_TEMPLATE_FILE, status="unsupported")
-
-		try:
-			all_requirements: list[ComparableRequirement] = []
-			for filename, requirements, invalid, include in data:
-				if include:
-					all_requirements.extend(requirements)
-
-			dependencies = list(get_dependency_status(all_requirements))
-			status_counts = Counter(map(itemgetter(1), dependencies))
-
-			if status_counts.get("insecure", 0):
-				return render_template(
-						STATUS_TEMPLATE_FILE,
-						status=f'{status_counts["insecure"]} insecure',
-						status_class="status-insecure",
-						)
-			elif status_counts.get("outdated", 0):
-				return render_template(
-						STATUS_TEMPLATE_FILE,
-						status=f'{status_counts["outdated"]} outdated',
-						status_class="status-outdated",
-						)
-			elif status_counts.get("prerelease", 0):
-				return render_template(
-						STATUS_TEMPLATE_FILE,
-						status=f'{status_counts["prerelease"]} prerelease',
-						status_class="status-prerelease",
-						)
-			else:
-				return render_template(STATUS_TEMPLATE_FILE, status="up-to-date")
-
-		except (InvalidRequirement, InvalidVersion):
-			return render_template(STATUS_TEMPLATE_FILE, status="invalid")
-
-	page = int(request.args.get("page", 1))
-
-	try:
-		user = GITHUB.user(username)
-	except github3.exceptions.NotFoundError:
-		try:
-			user = GITHUB.organization(username)
-		except github3.exceptions.NotFoundError:
-			return "<h6>User not found.</h6>"
-
-	repositories = {}
-
-	for repo in iter_repos_for_user(user, page):
-		repositories[repo.full_name] = ("loading...", "status-unsupported")
-
-	return render_template(
-			"repositories_table.html",
-			repositories=repositories,
-			data_url=f"/htmx/github/{username}/",
-			page=int(page) + 1,
-			)
 
 
 def iter_repos_for_user(
@@ -792,12 +579,3 @@ def parse_repo_url(url: str) -> tuple[str, str]:
 		raise ValueError(f"Not a repository URL: {url!r}")
 
 	return username, repo_name
-
-
-@app.route("/github/")
-def github() -> Response:
-	"""
-	Route for displaying the GitHub frontend landing page.
-	"""
-
-	return Response(render_template("github_search.html"))
