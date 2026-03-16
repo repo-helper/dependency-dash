@@ -320,6 +320,10 @@ def get_package_requirements(package_name: str) -> list[tuple[str, set[Comparabl
 	with PyPIJSON() as client:
 		metadata = client.get_metadata(package_name)
 		tag_mapping, non_wheel_urls = metadata.get_wheel_tag_mapping(metadata.version)
+
+		if not tag_mapping:
+			raise NotImplementedError
+
 		generic_tag = next(generic_tags())
 		if generic_tag in tag_mapping:
 			wheel_url = tag_mapping[generic_tag]

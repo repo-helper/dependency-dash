@@ -26,11 +26,20 @@ Common API Models.
 #  OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+# stdlib
+from collections import defaultdict
+from urllib.parse import urljoin
+
 # 3rd party
 from flask_restx import fields  # type: ignore[import-untyped]
+from flask_restx import Namespace, Resource
+from packaging.requirements import InvalidRequirement
+from pypi_json import PyPIJSON
+from shippinglabel import normalize
 
 # this package
-from dependency_dash._app import api
+from dependency_dash._app import api, app
+from dependency_dash.pypi import get_dependency_status, get_package_requirements
 
 __all__ = [
 		"project_urls_model",
@@ -59,3 +68,72 @@ requirement_data_model = api.model(
 				"current_version": fields.String(example="4.6.4"),
 				},
 		)
+
+api = Namespace("PyPI", path="/pypi", description="API for PyPI Packages")
+
+pypi_package_model = api.model(
+		"PyPI_Package",
+		{
+				'*': fields.List(fields.Nested(requirement_data_model)),
+				},
+		)
+
+
+def error404(message: str) -> tuple[dict[str, str], int]:
+	"""
+	Raise a HTTP 404 error, with a link to the documentation.
+
+	:param message:
+	"""
+
+	return {
+		"message": str(message),
+		"documentation_url": urljoin(app.config["DD_ROOT_URL"], "/api#/PyPI/get_pypi_package"),
+	}, 404
+
+
+@api.route("/<package_name>/")
+@api.doc(params={"package_name": "The PyPI package name."})
+class PyPIPackageAPI(Resource):
+	"""
+	API corresponding to ``/pypi/<package_name>``.
+	"""
+
+	@api.response(200, "Success", pypi_package_model)
+	@api.response(404, "Package not found or no supported files.")
+	@api.doc(id="get_pypi_package")
+	def get(self, package_name: str) -> tuple[dict, int]:  # noqa: PRM002
+		"""
+		Returns a JSON response, giving the status for each of the repository's dependencies.
+		"""
+
+		project_name = normalize(package_name)
+
+		with PyPIJSON() as client:
+			try:
+				metadata = client.get_metadata(project_name)
+
+			except InvalidRequirement:
+				return error404("Package not found")
+
+		try:
+			data = get_package_requirements(metadata.name)
+		except NotImplementedError:
+			return error404("No supported files for package")
+		else:
+
+			output = defaultdict(list)
+			overall_data = []
+
+			for filename, requirements, invalid, counts in data:
+				dependencies = list(get_dependency_status(requirements))
+
+				if counts:
+					overall_data.extend(dependencies)
+
+				for req, status, req_data in dependencies:
+					v: str = req_data.pop("version")  # type: ignore[misc]
+					req_data["current_version"] = v  # type: ignore[typeddict-unknown-key]
+					output[filename].append({"requirement": str(req), "status": status, **req_data})
+
+			return output, 200

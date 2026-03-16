@@ -109,7 +109,7 @@ class GitHubProjectAPI(Resource):
 					overall_data.extend(dependencies)
 
 				for req, status, req_data in dependencies:
-					v: str = req_data.pop(v)  # type: ignore[misc]
+					v: str = req_data.pop("version")  # type: ignore[misc]
 					req_data["current_version"] = v  # type: ignore[typeddict-unknown-key]
 					output[filename].append({"requirement": str(req), "status": status, **req_data})
 

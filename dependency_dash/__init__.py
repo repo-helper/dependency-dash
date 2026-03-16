@@ -33,6 +33,7 @@ monkey.patch_restx()
 
 # this package
 import dependency_dash.github.api  # noqa: E402
+import dependency_dash.pypi.api  # noqa: E402
 from dependency_dash import routes  # noqa: F401,E402
 from dependency_dash._app import api, app  # noqa: E402
 from dependency_dash.github import routes as _github_routes  # noqa: F401,E402
@@ -47,3 +48,4 @@ __email__: str = "dominic@davis-foster.co.uk"
 __all__ = ["app"]
 
 api.add_namespace(dependency_dash.github.api.api)
+api.add_namespace(dependency_dash.pypi.api.api)
