@@ -91,5 +91,5 @@ profile = "jinja"
 extension = "html"
 preserve_blank_lines = true
 ignore = "H029,H031,H030,H025,H021,J018,T028"
-indent = "	"
+indent = "\t"
 max_attribute_length = 80
