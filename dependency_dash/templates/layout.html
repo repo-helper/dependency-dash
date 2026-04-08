@@ -2,143 +2,181 @@
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-	<!-- Required meta tags -->
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-	<meta name="theme-color" content="#5f788a" />
-	{% if description %}<meta name="description" content="{{ description }}">{% endif %}
+	<head>
+		<!-- Required meta tags -->
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<meta name="theme-color" content="#5f788a" />
+		{% if description %}<meta name="description" content="{{ description }}">{% endif %}
 
-	{% block extrahead %}
-	{% endblock extrahead %}
+		{% block extrahead %}
+		{% endblock extrahead %}
 
-	<!-- Bootstrap CSS -->
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+		<!-- Bootstrap CSS -->
+		<link rel="stylesheet"
+				href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+				integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+				crossorigin="anonymous">
 
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/main.min.css') }}">
-	{% for stylesheet in extra_stylesheets %}
-	<link rel="stylesheet" type="text/css" href="{{ stylesheet }}">
-	{% endfor %}
-	<link rel="preload" type="font/woff2" as="font" crossorigin="anonymous" href="{{ url_for('static', filename='webfonts/fa-regular-400.woff2') }}">
-	<link rel="preload" type="font/woff2" as="font" crossorigin="anonymous" href="{{ url_for('static', filename='webfonts/fa-solid-900.woff2') }}">
-	<link rel="preload" type="font/woff2" as="font" crossorigin="anonymous" href="{{ url_for('static', filename='webfonts/fa-brands-400.woff2') }}">
+		<link rel="stylesheet"
+				type="text/css"
+				href="{{ url_for('static', filename='css/main.min.css') }}">
+		{% for stylesheet in extra_stylesheets %}
+			<link rel="stylesheet" type="text/css" href="{{ stylesheet }}">
+		{% endfor %}
+		<link rel="preload"
+				type="font/woff2"
+				as="font"
+				crossorigin="anonymous"
+				href="{{ url_for('static', filename='webfonts/fa-regular-400.woff2') }}">
+		<link rel="preload"
+				type="font/woff2"
+				as="font"
+				crossorigin="anonymous"
+				href="{{ url_for('static', filename='webfonts/fa-solid-900.woff2') }}">
+		<link rel="preload"
+				type="font/woff2"
+				as="font"
+				crossorigin="anonymous"
+				href="{{ url_for('static', filename='webfonts/fa-brands-400.woff2') }}">
 
-	{% set home = home|default(False) %}
+		{% set home = home|default(False) %}
 
-	{% if home %}
-			<title>Home – dependency-dash </title>
-	{% elif title %}
-			<title>{{ title }} – dependency-dash </title>
-	{% else %}
+		{% if home %}
+			<title>Home – dependency-dash</title>
+		{% elif title %}
+			<title>{{ title }} – dependency-dash</title>
+		{% else %}
 			<title>dependency-dash</title>
-	{% endif %}
+		{% endif %}
 
-</head>
+	</head>
 
-<body>
-	<header class="site-header">
-		<nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
-			<div class="container">
-				{% if home %}
-					<a class="navbar-brand mr-4 no-fade" href="#">dependency-dash</a>
-				{% elif title %}
-					<a class="navbar-brand mr-4" href="/">dependency-dash</a>
-					<a class="navbar-brand pull-left mr-4 navbar-page-title" href="#" tabindex="-1">{{ title }}</a>
-				{% else %}
-					<a class="navbar-brand mr-4 no-fade" href="/">dependency-dash</a>
-				{% endif %}
+	<body>
+		<header class="site-header">
+			<nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
+				<div class="container">
+					{% if home %}
+						<a class="navbar-brand mr-4 no-fade" href="#">dependency-dash</a>
+					{% elif title %}
+						<a class="navbar-brand mr-4" href="/">dependency-dash</a>
+						<a class="navbar-brand pull-left mr-4 navbar-page-title" href="#" tabindex="-1">{{ title }}</a>
+					{% else %}
+						<a class="navbar-brand mr-4 no-fade" href="/">dependency-dash</a>
+					{% endif %}
 
-				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
-					<span class="navbar-toggler-icon"></span>
-				</button>
+					<button class="navbar-toggler"
+					        type="button"
+					        data-toggle="collapse"
+					        data-target="#navbarToggle"
+					        aria-controls="navbarToggle"
+					        aria-expanded="false"
+					        aria-label="Toggle navigation">
+						<span class="navbar-toggler-icon"></span>
+					</button>
 
-				<div class="collapse navbar-collapse" id="navbarToggle">
-					<div class="navbar-nav ml-auto mr-3">
-						{% macro navbar_link(name, url) -%}
-							{% if name == title %}
-								<a class="nav-item nav-link active" aria-current="page" href="#">{{ name }}</a>
+					<div class="collapse navbar-collapse" id="navbarToggle">
+						<div class="navbar-nav ml-auto mr-3">
+							{% macro navbar_link(name, url) -%}
+								{% if name == title %}
+									<a class="nav-item nav-link active" aria-current="page" href="#">{{ name }}</a>
+								{% else %}
+									<a class="nav-item nav-link" href="{{ url }}">{{ name }}</a>
+								{% endif %}
+							{%- endmacro %}
+
+							{% if home %}
+								<a class="nav-item nav-link active" aria-current="page" href="#">Home</a>
 							{% else %}
-								<a class="nav-item nav-link" href="{{ url }}">{{ name }}</a>
+								<a class="nav-item nav-link" href="/">Home</a>
 							{% endif %}
-						{%- endmacro %}
 
-						{% if home %}
-							<a class="nav-item nav-link active" aria-current="page" href="#">Home</a>
-						{% else %}
-							<a class="nav-item nav-link" href="/">Home</a>
-						{% endif %}
+							{{ navbar_link('About', '/about/') }}
+							{{ navbar_link('Usage', '/usage/') }}
+							{{ navbar_link('Configuration', '/configuration/') }}
+							{{ navbar_link('API', '/api/') }}
+						</div>
 
-						{{ navbar_link("About", "/about/") }}
-						{{ navbar_link("Usage", "/usage/") }}
-						{{ navbar_link("Configuration", "/configuration/") }}
-						{{ navbar_link("API", "/api/") }}
-					</div>
-
-					<!-- Navbar Right Side -->
-					<div class="navbar-nav">
-						{% block searchbox %}
-							<form action="{{ search_url }}" method="post" class="form-inline my-2 my-lg-0">
-								<input
-										class="form-control mr-sm-2"
-										type="search" id="search" name="search"
-										placeholder="User/Repository/Package" aria-label="Go to a repository"
-								>
-								<button class="btn btn-success my-2 my-sm-0" type="submit">Go</button>
-							</form>
-						{% endblock searchbox %}
-					</div>
-				</div>
-			</div>
-		</nav>
-	</header>
-
-	{% block main %}
-		<main role="main" class="container flex-grow-1 w-100">
-			<div class="row">
-				{% if not show_sidebar %}<div class="col-md-1"></div>{% endif %}
-				{% if show_sidebar %}<div class="col-md-8">{% else %}<div class="col-md-10">{% endif %}
-				{% block content %}{% endblock content %}
-				</div>
-				{% if show_sidebar %}
-					<div class="col-md-4">
-						<div class="content-section">
-							<h3>Our Sidebar</h3>
-							<p class='text-muted'>You can put any information here you'd like.
-								<ul class="list-group">
-									<li class="list-group-item list-group-item-light">Latest Posts</li>
-									<li class="list-group-item list-group-item-light">Announcements</li>
-									<li class="list-group-item list-group-item-light">Calendars</li>
-									<li class="list-group-item list-group-item-light">etc</li>
-								</ul>
-							</p>
+						<!-- Navbar Right Side -->
+						<div class="navbar-nav">
+							{% block searchbox %}
+								<form action="{{ search_url }}" method="post" class="form-inline my-2 my-lg-0">
+									<input class="form-control mr-sm-2"
+									       type="search"
+									       id="search"
+									       name="search"
+									       placeholder="User/Repository/Package"
+									       aria-label="Go to a repository">
+									<button class="btn btn-success my-2 my-sm-0" type="submit">Go</button>
+								</form>
+							{% endblock searchbox %}
 						</div>
 					</div>
-				{% endif %}
 				</div>
-		</main>
-	{% endblock main %}
+			</nav>
+		</header>
 
-	{% block footer %}
-		<!-- Footer -->
-		<footer class="page-footer font-small blue pt-4">
-			<!-- Footer Links -->
-			<div class="container-fluid text-center">
-				Powered by <a href="https://github.com/repo-helper/dependency-dash">dependency-dash</a>
-			</div>
-		</footer>
-	{% endblock footer %}
+		{% block main %}
+			<main role="main" class="container flex-grow-1 w-100">
+				<div class="row">
+					{% if not show_sidebar %}<div class="col-md-1"></div>{% endif %}
+					{% if show_sidebar %}
+						<div class="col-md-8">
+						{% else %}
+							<div class="col-md-10">
+						{% endif %}
+						{% block content %}
+						{% endblock content %}
+					</div>
+					{% if show_sidebar %}
+						<div class="col-md-4">
+							<div class="content-section">
+								<h3>Our Sidebar</h3>
+								<p class="text-muted">
+									You can put any information here you'd like.
+									<ul class="list-group">
+										<li class="list-group-item list-group-item-light">Latest Posts</li>
+										<li class="list-group-item list-group-item-light">Announcements</li>
+										<li class="list-group-item list-group-item-light">Calendars</li>
+										<li class="list-group-item list-group-item-light">etc</li>
+									</ul>
+								</p>
+							</div>
+						</div>
+					{% endif %}
+				</div>
+			</main>
+		{% endblock main %}
 
-	{% block scripts %}
-		<!-- Optional JavaScript -->
-		<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-		<script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
-		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+		{% block footer %}
+			<!-- Footer -->
+			<footer class="page-footer font-small blue pt-4">
+				<!-- Footer Links -->
+				<div class="container-fluid text-center">
+					Powered by <a href="https://github.com/repo-helper/dependency-dash">dependency-dash</a>
+				</div>
+			</footer>
+		{% endblock footer %}
 
-		<script src="https://unpkg.com/htmx.org@1.5.0/dist/htmx.min.js" integrity="sha384-oGA+prIp5Vchu6we2YkI51UtVzN9Jpx2Z7PnR1I78PnZlN8LkrCT4lqqqmDkyrvI" crossorigin="anonymous"></script>
+		{% block scripts %}
+			<!-- Optional JavaScript -->
+			<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+			<script src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
+					integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI="
+					crossorigin="anonymous"></script>
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+					integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+					crossorigin="anonymous"></script>
+			<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+					integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+					crossorigin="anonymous"></script>
 
-		<script src="{{ url_for('static', filename='js/dash.js') }}"></script>
-	{% endblock scripts %}
+			<script src="https://unpkg.com/htmx.org@1.5.0/dist/htmx.min.js"
+					integrity="sha384-oGA+prIp5Vchu6we2YkI51UtVzN9Jpx2Z7PnR1I78PnZlN8LkrCT4lqqqmDkyrvI"
+					crossorigin="anonymous"></script>
 
-</body>
+			<script src="{{ url_for('static', filename='js/dash.js') }}"></script>
+		{% endblock scripts %}
+
+	</body>
 </html>

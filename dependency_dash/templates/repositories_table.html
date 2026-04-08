@@ -7,10 +7,15 @@
 			<span class="unselectable">&nbsp;</span>{{- '' -}}
 			<a href="/github/{{ repo }}">{{ repo }}</a>{{- '' -}}
 		</td>
-		<td hx-get="{{ data_url }}?repo={{ repo }}" hx-trigger="revealed" hx-swap="outerHTML" class="status-unsupported">loading...</td>
+		<td hx-get="{{ data_url }}?repo={{ repo }}"
+		    hx-trigger="revealed"
+		    hx-swap="outerHTML"
+		    class="status-unsupported">loading...</td>
 	</tr>
 {% endfor %}
 
 {% if repositories %}
-	<tr hx-get="{{ data_url }}?page={{ page }}" hx-trigger="revealed" hx-swap="afterend"></tr>
+	<tr hx-get="{{ data_url }}?page={{ page }}"
+	    hx-trigger="revealed"
+	    hx-swap="afterend"></tr>
 {% endif %}

@@ -1,5 +1,5 @@
 {% extends "fontawesome.html" %}
-{% set title="About" %}
+{% set title = "About" %}
 
 {% macro github_link(name) %}
 	<a href="https://github.com/{{ name }}" class="github-link"><i class="fab fa-github"></i></a>
@@ -8,7 +8,6 @@
 {% macro docs_link(href) %}
 	<a href="{{ href }}" class="docs-link"><i class="fas fa-book"></i></a>
 {% endmacro %}
-
 
 {% block content %}
 	{{ body|safe }}

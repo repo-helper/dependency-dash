@@ -3,13 +3,15 @@
 {% block content %}
 	<div class="d-flex flex-row align-items-baseline flex-wrap">
 		<div class="p-2">
-{#			<h3 class="project-name">{{ project_name }}</h3>#}
+			{#<h3 class="project-name">{{ project_name }}</h3>#}
 			<h3 class="project-name">
 				<a href="#">{{ username }}</a>
 			</h3>
 		</div>
 		<div class="p-2 repo-link">
-			<a href="https://github.com/{{ username }}" title="View on GitHub" class="repo-link">
+			<a href="https://github.com/{{ username }}"
+			   title="View on GitHub"
+			   class="repo-link">
 				<i class="fab fa-github"></i>
 			</a>
 		</div>
