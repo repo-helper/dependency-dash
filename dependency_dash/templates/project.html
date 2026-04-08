@@ -49,6 +49,6 @@
 
 {% block scripts %}
 	{{ super() }}
-	<script src="https://unpkg.com/clipboard@2/dist/clipboard.min.js"></script>
+	<script src="https://unpkg.com/clipboard@2/dist/clipboard.min.js" integrity="sha384-J08i8An/QeARD9ExYpvphB8BsyOj3Gh2TSh1aLINKO3L0cMSH2dN3E22zFoXEi0Q" crossorigin="anonymous"></script>
 	<script>new ClipboardJS('.badge-urls .btn');</script>
 {% endblock scripts %}
