@@ -31,6 +31,7 @@ import datetime
 import os
 from collections.abc import Iterable, Iterator
 from email.utils import parsedate_to_datetime
+from json import JSONDecodeError
 from operator import itemgetter
 from typing import Any, Optional, TypedDict
 from urllib.parse import urlparse
@@ -238,7 +239,7 @@ def get_data(project_name: str) -> DependencyMetadata:
 		else:
 			data = get_updated_data(etag=old_etag, stale_data=data)
 
-	except FileNotFoundError:
+	except (FileNotFoundError, JSONDecodeError):
 		data = get_updated_data()
 
 	datafile.dump_json(data)
