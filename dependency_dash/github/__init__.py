@@ -31,7 +31,7 @@ import ast
 from collections.abc import Iterator
 from configparser import ConfigParser
 from contextlib import suppress
-from datetime import datetime
+from datetime import datetime, timedelta
 from sys import intern
 from typing import Any, Callable, Union
 from urllib.parse import urlparse
@@ -405,6 +405,15 @@ def iter_repos_for_user(
 	yield from user_or_org._iter(30, url, ShortRepository, params)  # type: ignore[misc, arg-type]
 
 
+def _get_expiry_time(headers: dict[str, Any]) -> datetime:
+	if "expires" in headers:
+		return strptime(headers["expires"], EXPIRES_FORMAT)
+	else:
+		print("INFO: Missing 'expires' header, getting from date instead")
+		# TODO: parse 'Cache-Control': 'max-age=300'
+		return strptime(headers["date"], EXPIRES_FORMAT) + timedelta(seconds=300)
+
+
 def get_requirements_from_github(
 		repository: str,
 		default_branch: str,
@@ -437,7 +446,7 @@ def get_requirements_from_github(
 			raise requests.HTTPError  # TODO: better error
 
 		etag = response.headers["etag"]
-		expires = strptime(response.headers["expires"], EXPIRES_FORMAT)
+		expires = _get_expiry_time(response.headers)
 		content = response.content
 		requirements, invalid_lines = parse_func(content)
 	else:
@@ -461,7 +470,7 @@ def get_requirements_from_github(
 				requirements, invalid_lines = parse_func(content)
 
 			etag = response.headers["etag"]
-			expires = strptime(response.headers["expires"], EXPIRES_FORMAT)
+			expires = _get_expiry_time(response.headers)
 
 	data = [
 			etag,
